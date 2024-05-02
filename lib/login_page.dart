@@ -1,3 +1,4 @@
+import 'package:english_flashcard/account/forgot_pass.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
@@ -72,7 +73,33 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _loginOrResgisterButton() {
+  Widget _sizedBox() {
+    return const SizedBox(
+      height: 20,
+    );
+  }
+
+  Widget _forgotPassword(context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const ForgotPasswordPage(),
+          ),
+        );
+      },
+      child: Text(
+        "Forgot Password",
+        style: TextStyle(
+          decoration: TextDecoration.underline,
+          color: Theme.of(context).colorScheme.secondary,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _loginOrRegisterButton() {
     return TextButton(
       onPressed: () {
         setState(() {
@@ -101,7 +128,10 @@ class _LoginPageState extends State<LoginPage> {
             _entryField("password", _controllerPassword),
             _errorMessage(),
             _submitButton(),
-            _loginOrResgisterButton(),
+            _sizedBox(),
+            _forgotPassword(context),
+            _sizedBox(),
+            _loginOrRegisterButton(),
           ],
         ),
       ),
