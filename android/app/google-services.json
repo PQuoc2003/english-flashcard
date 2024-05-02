@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "769030931603",
+    "firebase_url": "https://flutter-quizzlet-default-rtdb.firebaseio.com",
+    "project_id": "flutter-quizzlet",
+    "storage_bucket": "flutter-quizzlet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769030931603:android:433985001ce1bd2437f966",
+        "android_client_info": {
+          "package_name": "com.example.english_flashcard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa4b8GAc9SXI7SgUbn8EkI6SWC9UFzFcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
