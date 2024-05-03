@@ -1,7 +1,7 @@
-import 'package:english_flashcard/home_page.dart';
 import 'package:english_flashcard/login_page.dart';
 import 'package:flutter/material.dart';
 
+import 'account/change_password.dart';
 import 'auth.dart';
 
 class WidgetTree extends StatefulWidget {
@@ -18,7 +18,8 @@ class _WidgetTreeState extends State<WidgetTree> {
         stream: Auth().authStateChanges,
       builder: (context, snapshot) {
           if(snapshot.hasData){
-            return HomePage();
+            // return HomePage();
+            return const ChangePasswordPage();
           }
           return const LoginPage();
           // return const ChangePasswordPage();
