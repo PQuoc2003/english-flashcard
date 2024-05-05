@@ -1,26 +1,30 @@
-import 'package:english_flashcard/home_page.dart';
-import 'package:english_flashcard/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:english_flashcard/login_page.dart';
+import 'package:english_flashcard/home_page.dart';
+import 'package:english_flashcard/topic_screen.dart'; // Import your TopicScreen here
+import 'package:english_flashcard/auth.dart';
 
-import 'auth.dart';
+class WidgetTree extends StatelessWidget {
+  const WidgetTree({Key? key}) : super(key: key);
 
-class WidgetTree extends StatefulWidget {
-  const WidgetTree({super.key});
-
-  @override
-  State<WidgetTree> createState() => _WidgetTreeState();
-}
-
-class _WidgetTreeState extends State<WidgetTree> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: Auth().authStateChanges,
+      stream: Auth().authStateChanges,
       builder: (context, snapshot) {
-          if(snapshot.hasData){
-            return HomePage();
-          }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        } else if (snapshot.hasData) {
+          // User is logged in, show HomePage layout
+          return HomePage(); // You may want to pass additional parameters here if required
+        } else {
+          // User is not logged in, show LoginPage
           return const LoginPage();
+        }
       },
     );
   }

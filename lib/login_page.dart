@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+  final TextEditingController _controllerDisplayName = TextEditingController(); // Added controller for display name
 
   Future<void> signInWithEmailAndPassword() async {
     try {
@@ -34,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
       await Auth().createUserWithEmailAndPassword(
         email: _controllerEmail.text,
         password: _controllerPassword.text,
+        displayName: _controllerDisplayName.text, // Pass display name
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -47,9 +49,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _entryField(
-    String title,
-    TextEditingController controller,
-  ) {
+      String title,
+      TextEditingController controller,
+      ) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -65,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _submitButton() {
     return ElevatedButton(
       onPressed:
-          isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
+      isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
       child: Text(
         isLogin ? "Login" : "Register",
       ),
@@ -97,8 +99,9 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _entryField('email', _controllerEmail),
-            _entryField("password", _controllerPassword),
+            _entryField('Display Name', _controllerDisplayName), // Added display name field
+            _entryField('Email', _controllerEmail),
+            _entryField("Password", _controllerPassword),
             _errorMessage(),
             _submitButton(),
             _loginOrResgisterButton(),
