@@ -1,4 +1,6 @@
 import 'package:english_flashcard/account/forgot_pass.dart';
+import 'package:english_flashcard/models/users_model.dart';
+import 'package:english_flashcard/repository/user_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
@@ -110,6 +112,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // button test
+  Widget createButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        createUser(context);
+      },
+      child: const Text(
+        "Test connect firestore",
+      ),
+    );
+  }
+
+  // function firebase test
+  void createUser(BuildContext context) {
+    UserRepository userRepository = UserRepository();
+
+    UserModel userModel = UserModel(uid: "1", fullName: "Quoc", gender: "Male");
+
+    userRepository.createUser(context, userModel);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,6 +155,8 @@ class _LoginPageState extends State<LoginPage> {
             _forgotPassword(context),
             _sizedBox(),
             _loginOrRegisterButton(),
+            // test firebase
+            createButton(context),
           ],
         ),
       ),
