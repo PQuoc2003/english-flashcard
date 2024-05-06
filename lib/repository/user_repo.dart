@@ -20,6 +20,10 @@ class UserRepository {
     return _userRef.snapshots();
   }
 
+  Stream<QuerySnapshot> getUsersByName(String name) {
+    return _userRef.where('fullName', isEqualTo: name).snapshots();
+  }
+
 
   void updateUser(String uid, UserModel userModel){
     _userRef.doc(uid).update(userModel.toJson());
