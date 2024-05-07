@@ -1,5 +1,5 @@
+import 'package:english_flashcard/homepage/main_home_page.dart';
 import 'package:english_flashcard/homepage/user_list.dart';
-import 'package:english_flashcard/login_page.dart';
 import 'package:flutter/material.dart';
 
 import 'auth.dart';
@@ -21,8 +21,11 @@ class _WidgetTreeState extends State<WidgetTree> {
             // return HomePage();
             return const UserHomePage();
           }
-          return const LoginPage();
+          // return const LoginPage();
+        return const MainHomePage();
+        // return const CreateFolderPage();
       },
+
     );
   }
 }

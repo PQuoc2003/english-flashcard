@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FolderModel {
-  String folderId;
   String folderName;
   String folderDes;
   Timestamp folderCreated;
@@ -10,7 +9,6 @@ class FolderModel {
   String uid;
 
   FolderModel({
-    required this.folderId,
     required this.folderName,
     required this.folderDes,
     required this.folderCreated,
@@ -21,7 +19,6 @@ class FolderModel {
 
   toJson() {
     return {
-      "folderId": folderId,
       "folderName": folderName,
       "folderDes": folderDes,
       "folderCreated": folderCreated,
@@ -33,7 +30,6 @@ class FolderModel {
 
   FolderModel.fromJson(Map<dynamic, Object?> json)
       : this(
-          folderId: json['folderId']! as String,
           folderName: json['folderName']! as String,
           folderDes: json['folderDes']! as String,
           folderCreated: json['folderCreated']! as Timestamp,
@@ -43,7 +39,6 @@ class FolderModel {
         );
 
   FolderModel copyWith({
-    String? folderId,
     String? folderName,
     String? folderDes,
     Timestamp? folderCreated,
@@ -52,7 +47,6 @@ class FolderModel {
     String? uid,
   }) {
     return FolderModel(
-      folderId: folderId ?? this.folderId,
       folderName: folderName ?? this.folderName,
       folderDes: folderDes ?? this.folderDes,
       folderCreated: folderCreated ?? this.folderCreated,

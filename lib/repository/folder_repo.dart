@@ -30,7 +30,7 @@ class FolderRepository {
     _folderRef.doc(docId).update(folderModel.toJson());
   }
 
-  Future<void> createUser(BuildContext context, FolderModel folderModel) async {
+  Future<void> createFolder(BuildContext context, FolderModel folderModel) async {
     await _folderRef.add(folderModel).then((value) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -44,5 +44,6 @@ class FolderRepository {
         ),
       );
     });
+
   }
 }
