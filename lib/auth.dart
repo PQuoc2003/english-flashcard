@@ -22,21 +22,34 @@ class Auth {
   Future<void> createUserWithEmailAndPassword({
     required String email,
     required String password,
+    required String confirmPassword,
     required String displayName,
   }) async {
-    UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    if (password != confirmPassword) {
+      throw FirebaseAuthException(
+        code: 'passwords-do-not-match',
+        message: 'Confirm passwords not match',
+      );
+    }
 
-    DateTime now = DateTime.now();
+    try {
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    await _firestore.collection('users').doc(userCredential.user!.uid).set({
-      'email': email,
-      'displayName': displayName,
-      'createdAt': now,
-    });
+      DateTime now = DateTime.now();
+
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'email': email,
+        'displayName': displayName,
+        'createdAt': now,
+      });
+    } catch (e) {
+      throw e; // Rethrow any other FirebaseAuthException
+    }
   }
+
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();

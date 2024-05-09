@@ -2,18 +2,27 @@ import 'package:flutter/material.dart';
 import 'auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_page.dart';
-import 'topic_screen.dart'; // Import your TopicScreen here
+import 'topic_screen.dart';
+import 'user_setting.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
-  Future<void> signOut(BuildContext context) async {
+  Future<void> _signOut(BuildContext context) async {
     await Auth().signOut();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const LoginPage()),
-          (Route<dynamic> route) => false,
+          (Route<dynamic> route) => true,
     );
   }
+
+  void _showSettings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const UserSettings()), // Navigate to UserSettings page
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +31,12 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(title: const Text("Firebase Auth")),
-            body: Center(child: CircularProgressIndicator()),
+            appBar: AppBar(title: const Text("Home page")),
+            body: const Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text("Firebase Auth")),
+            appBar: AppBar(title: const Text("Home page")),
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
         } else if (snapshot.hasData) {
@@ -36,11 +45,32 @@ class HomePage extends StatelessWidget {
 
           return Scaffold(
             appBar: AppBar(
-              title: const Text("Firebase Auth"),
+              title: const Text("Home page"),
               actions: [
-                IconButton(
-                  onPressed: () => signOut(context),
-                  icon: const Icon(Icons.logout),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'settings') {
+                      _showSettings(context);
+                    } else if (value == 'signOut') {
+                      _signOut(context);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'settings',
+                      child: ListTile(
+                        leading: Icon(Icons.settings),
+                        title: Text('Settings'),
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'signOut',
+                      child: ListTile(
+                        leading: Icon(Icons.logout),
+                        title: Text('Sign Out'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -48,11 +78,12 @@ class HomePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 10),
                   Text(displayName),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => TopicScreen()),
+                        MaterialPageRoute(builder: (context) => const TopicScreen()),
                       );
                     },
                     child: const Text("Go to Topics"),
