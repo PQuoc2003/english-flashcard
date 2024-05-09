@@ -1,5 +1,6 @@
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
+import 'package:english_flashcard/topic_handle/topic_details.dart';
 import 'package:flutter/material.dart';
 
 class TopicListPage extends StatefulWidget {
@@ -31,10 +32,15 @@ class _TopicListPageState extends State<TopicListPage> {
               content: Text('Topic ID: $topicId'),
             ),
           );
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => AnotherClass(topicId)),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TopicDetailsPage(
+                topicId: topicId,
+                topicModel: topicModel,
+              ),
+            ),
+          );
         },
       ),
     );

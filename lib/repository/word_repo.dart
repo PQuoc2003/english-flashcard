@@ -16,7 +16,6 @@ class WordRepository {
         toFirestore: (word, _) => word.toJson());
   }
 
-
   Stream<QuerySnapshot> getWord() {
     return _wordRef.snapshots();
   }
