@@ -13,7 +13,7 @@ class FolderRepository {
   FolderRepository() {
     _folderRef = _db.collection(databaseName).withConverter<FolderModel>(
         fromFirestore: (snapshots, _) => FolderModel.fromJson(snapshots.data()!),
-        toFirestore: (user, _) => user.toJson());
+        toFirestore: (folder, _) => folder.toJson());
   }
 
 
