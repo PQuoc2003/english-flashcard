@@ -1,12 +1,10 @@
 class WordModel {
-  int index;
   String english;
   String vietnamese;
   bool isLearned;
   String topicId;
 
   WordModel({
-    required this.index,
     required this.english,
     required this.vietnamese,
     required this.isLearned,
@@ -15,7 +13,6 @@ class WordModel {
 
   toJson() {
     return {
-      "index": index,
       "english": english,
       "vietnamese": vietnamese,
       "isLearned": isLearned,
@@ -25,7 +22,6 @@ class WordModel {
 
   WordModel.fromJson(Map<dynamic, Object?> json)
       : this(
-    index: json['index']! as int,
     english: json['english']! as String,
     vietnamese: json['vietnamese']! as String,
     isLearned: json['isLearned']! as bool,
@@ -33,14 +29,12 @@ class WordModel {
   );
 
   WordModel copyWith({
-    int? index,
     String? english,
     String? vietnamese,
     bool? isLearned,
     String? topicId,
   }) {
     return WordModel(
-      index: index ?? this.index,
       english: english ?? this.english,
       vietnamese: vietnamese ?? this.vietnamese,
       isLearned: isLearned ?? this.isLearned,

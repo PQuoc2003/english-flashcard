@@ -35,9 +35,9 @@ class TopicModel {
       : this(
           topicName: json['topicName']! as String,
           topicDescription: json['topicDescription']! as String,
-          createdDate: json['folderCreated']! as Timestamp,
+          createdDate: json['createdDate']! as Timestamp,
           folderId: json['folderId']! as String,
-          uid: json['numberOfTopic']! as String,
+          uid: json['uid']! as String,
           currLearningIndex: json['currLearningIndex']! as int,
           numberOfWord: json['numberOfWord']! as int,
         );

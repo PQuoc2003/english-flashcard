@@ -1,15 +1,14 @@
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/models/word_model.dart';
+import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/repository/word_repo.dart';
 import 'package:flutter/material.dart';
 
 class TopicDetailsPage extends StatefulWidget {
-  final String topicId;
   final TopicModel topicModel;
 
   const TopicDetailsPage({
     super.key,
-    required this.topicId,
     required this.topicModel,
   });
 
@@ -19,9 +18,32 @@ class TopicDetailsPage extends StatefulWidget {
 
 class _TopicDetailsPageState extends State<TopicDetailsPage> {
   final WordRepository wordRepository = WordRepository();
+  final TopicRepository topicRepository = TopicRepository();
 
-  Widget listItems(
-      BuildContext context, int index, WordModel wordModel) {
+  final _key = GlobalKey<FormState>();
+
+  final _ctlEnglish = TextEditingController();
+  final _ctlVietnamese = TextEditingController();
+
+  String topicId = "";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTopicId();
+  }
+
+  void fetchTopicId() async {
+    String topicId = await topicRepository.getTopicIdByUidAndCreatedDate(
+        "1", widget.topicModel.createdDate);
+    setState(() {
+      this.topicId = topicId;
+    });
+  }
+
+
+
+  Widget listItems(BuildContext context, int index, WordModel wordModel) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -46,8 +68,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     );
   }
 
-  Widget _topicBox(String topicId, TopicModel topicModel) {
-
+  Widget _topicBox(String topicId) {
     return SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.8,
       width: MediaQuery.sizeOf(context).width,
@@ -73,15 +94,93 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text(widget.topicModel.topicName),),
       body: SafeArea(
         child: Column(
           children: [
-            _topicBox(widget.topicId, widget.topicModel),
+            _topicBox(topicId),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Add new word'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                      onPressed: () async {
+                        final navigator = Navigator.of(context);
+                        if (_key.currentState?.validate() ?? false) {
+                          String english = _ctlEnglish.text.toString();
+                          String vietnamese = _ctlVietnamese.text.toString();
+                          bool isLearned = false;
+
+                          WordModel wordModel = WordModel(
+                              english: english,
+                              vietnamese: vietnamese,
+                              isLearned: isLearned,
+                              topicId: topicId);
+
+                          wordRepository.addWord(context, wordModel);
+
+                          navigator.pop();
+                        }
+                      },
+                      child: const Text('Add'))
+                ],
+                content: AlertDialog(
+                  title: const Text('Add new word'),
+                  content: Form(
+                    key: _key,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          controller: _ctlEnglish,
+                          decoration: const InputDecoration(
+                            labelText: 'English',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a value';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: _ctlVietnamese,
+                          decoration: const InputDecoration(
+                            labelText: 'Vietnamese',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a value';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 const String databaseName = "MyTopics";
 
 class TopicRepository {
-
   final _db = FirebaseFirestore.instance;
 
   late final CollectionReference _topicRef;
@@ -16,7 +15,6 @@ class TopicRepository {
         toFirestore: (topic, _) => topic.toJson());
   }
 
-
   Stream<QuerySnapshot> getTopic() {
     return _topicRef.snapshots();
   }
@@ -26,7 +24,10 @@ class TopicRepository {
   }
 
   Stream<QuerySnapshot> getTopicByUserId(String uid) {
-    return _topicRef.where('uid', isEqualTo: uid).snapshots();
+    return _topicRef
+        .where('uid', isEqualTo: uid)
+        // .orderBy("topicName", descending: true)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> getTopicByUidAndCreatedDate(
@@ -37,17 +38,30 @@ class TopicRepository {
         .snapshots();
   }
 
+  Future<String> getTopicIdByUidAndCreatedDate(
+      String uid, Timestamp createdDate) async {
+    QuerySnapshot snapshot = await _topicRef
+        .where('uid', isEqualTo: uid)
+        .where('createdDate', isEqualTo: createdDate)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs[0].id;
+    }
+
+    return '';
+  }
+
   Stream<DocumentSnapshot> getTopicById(String topicId) {
     return _topicRef.doc(topicId).snapshots();
   }
 
-
-  void updateTopic(String docId, TopicModel topicModel){
+  void updateTopic(String docId, TopicModel topicModel) {
     _topicRef.doc(docId).update(topicModel.toJson());
   }
 
-  Future<String> createTopic(BuildContext context, TopicModel topicModel) async {
-    final docRef = await _topicRef.add(topicModel).then((value) {
+  Future<void> createTopic(BuildContext context, TopicModel topicModel) async {
+    await _topicRef.add(topicModel).then((value) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Topic created successfully!'),
@@ -60,10 +74,5 @@ class TopicRepository {
         ),
       );
     });
-
-    return docRef.id;
-
-
-
   }
 }
