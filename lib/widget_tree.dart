@@ -1,8 +1,8 @@
-import 'package:english_flashcard/homepage/user_list.dart';
-import 'package:english_flashcard/topic_handle/topic_list.dart';
+import 'package:english_flashcard/homepage/main_home_page.dart';
+import 'package:english_flashcard/account/login_page.dart';
 import 'package:flutter/material.dart';
 
-import 'auth.dart';
+import 'account/auth.dart';
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
@@ -18,12 +18,12 @@ class _WidgetTreeState extends State<WidgetTree> {
         stream: Auth().authStateChanges,
       builder: (context, snapshot) {
           if(snapshot.hasData){
-            // return HomePage();
-            return const UserHomePage();
+            // return const UserHomePage();
+            return const MainHomePage();
           }
-          // return const LoginPage();
+          return const LoginPage();
         // return const MainHomePage();
-        return const TopicListPage(mode: 0, folderId: "no");
+        // return const TopicListPage(mode: 0, folderId: "no");
         // return const UserHomePage();
       },
 
