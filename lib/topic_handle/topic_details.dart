@@ -2,6 +2,7 @@ import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/models/word_model.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/repository/word_repo.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TopicDetailsPage extends StatefulWidget {
@@ -25,6 +26,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   final _ctlEnglish = TextEditingController();
   final _ctlVietnamese = TextEditingController();
 
+
+
   String topicId = "";
 
   @override
@@ -34,14 +37,13 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   }
 
   void fetchTopicId() async {
+    final user = FirebaseAuth.instance.currentUser;
     String topicId = await topicRepository.getTopicIdByUidAndCreatedDate(
-        "1", widget.topicModel.createdDate);
+        user?.uid ?? "1", widget.topicModel.createdDate);
     setState(() {
       this.topicId = topicId;
     });
   }
-
-
 
   Widget listItems(BuildContext context, int index, WordModel wordModel) {
     return Padding(
@@ -59,10 +61,6 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
               content: Text('Topic ID: $index'),
             ),
           );
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => AnotherClass(topicId)),
-          // );
         },
       ),
     );
@@ -94,11 +92,12 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.topicModel.topicName),),
+      appBar: AppBar(
+        title: Text(widget.topicModel.topicName),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -112,6 +111,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
+              _ctlEnglish.clear();
+              _ctlVietnamese.clear();
               return AlertDialog(
                 title: const Text('Add new word'),
                 actions: [

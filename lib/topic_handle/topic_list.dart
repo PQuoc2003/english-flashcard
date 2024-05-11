@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/topic_handle/topic_details.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TopicListPage extends StatefulWidget {
@@ -25,7 +26,6 @@ class _TopicListPageState extends State<TopicListPage> {
   final _cltTitleTopic = TextEditingController();
   final _cltDescriptionTopic = TextEditingController();
 
-  final uid = "1";
 
   @override
   void dispose() {
@@ -50,11 +50,11 @@ class _TopicListPageState extends State<TopicListPage> {
         title: Text(topicModel.topicName),
         subtitle: Text(topicModel.numberOfWord.toString()),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Topic ID: $topicId'),
-            ),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text('Topic ID: $topicId'),
+          //   ),
+          // );
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -69,13 +69,14 @@ class _TopicListPageState extends State<TopicListPage> {
   }
 
   Widget _topicBox(int mode) {
+    final user = FirebaseAuth.instance.currentUser;
     return SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.8,
       width: MediaQuery.sizeOf(context).width,
       child: StreamBuilder(
         stream: mode == 0
-            ? topicRepository.getTopicByUserId("1")
-            : topicRepository.getTopicByFolderId("2"),
+            ? topicRepository.getTopicByUserId(user?.uid ?? "1")
+            : topicRepository.getTopicByFolderId(widget.folderId),
         builder: (context, snapshots) {
           List topicList = snapshots.data?.docs ?? [];
           if (topicList.isEmpty) {
@@ -112,6 +113,10 @@ class _TopicListPageState extends State<TopicListPage> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
+              final user = FirebaseAuth.instance.currentUser;
+              // Clear textField
+              _cltTitleTopic.clear();
+              _cltDescriptionTopic.clear();
               return AlertDialog(
                 title: const Text('Create new Topic'),
                 actions: [
@@ -138,7 +143,7 @@ class _TopicListPageState extends State<TopicListPage> {
                             topicDescription: topicDescription,
                             createdDate: createdDate,
                             folderId: folderId,
-                            uid: uid,
+                            uid: user?.uid ?? "1",
                             currLearningIndex: currLearningIndex,
                             numberOfWord: numberOfWord,
                           );

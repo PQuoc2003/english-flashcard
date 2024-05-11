@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -9,185 +9,123 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  bool _showPassword = false; // Add show password state
+  late TextEditingController _ctlCurrPass;
+  late TextEditingController _ctlNewPass;
+  late TextEditingController _ctlConfPass;
   final _key = GlobalKey<FormState>();
-
-  // firebase user
   final _auth = FirebaseAuth.instance;
-
-  // Variable to save value of textFormField after validate
-  String currPass = "";
-  String newPass = "";
-  String confPass = "";
-
-  // controller of field in textFormField
-  final _ctlCurrPass = TextEditingController();
-  final _ctlNewPass = TextEditingController();
-  final _ctlConfPass = TextEditingController();
-
-  // focusNode of field
-
-  final _fcCurrPass = FocusNode();
-
   String errorMessage = "";
 
-  Future<void> updatePassword(
-      User user, String currPass, String newPass) async {
-    try {
-      final credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: currPass,
-      );
-      await user.reauthenticateWithCredential(credential);
-      await user.updatePassword(newPass);
-      // Password updated successfully
-      // You can navigate to another page or show a success message
-
-      setState(() {
-        errorMessage = "Update Password successfully";
-      });
-
-
-    } catch (e) {
-      setState(() {
-        errorMessage =
-            'Failed to update password. Please check your current password.';
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _ctlCurrPass = TextEditingController();
+    _ctlNewPass = TextEditingController();
+    _ctlConfPass = TextEditingController();
   }
 
-  void _handleSubmit() {
-    if (_key.currentState?.validate() ?? false) {
-      if (newPass != confPass) {
-        setState(() {
-          errorMessage =
-              "Your new password and confirm password must be the same";
-        });
-
-        return;
-      }
-
-      final user = _auth.currentUser;
-
-      if (user == null) {
-        setState(() {
-          errorMessage = "Null user , so can not change password";
-        });
-        return;
-      }
-
-      updatePassword(user, currPass, newPass);
-
-    } else {
-      setState(() {
-        _ctlNewPass.text = "";
-        _ctlConfPass.text = "";
-        errorMessage = "Error validate";
-      });
-    }
+  @override
+  void dispose() {
+    _ctlCurrPass.dispose();
+    _ctlNewPass.dispose();
+    _ctlConfPass.dispose();
+    super.dispose();
   }
 
-  Widget _errorBox(String errorMessage) {
-    return Text(errorMessage);
+  void _togglePasswordVisibility() {
+    setState(() {
+      _showPassword = !_showPassword;
+    });
+  }
+
+  Widget _buildPasswordVisibilityIconButton() {
+    return IconButton(
+      icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+      onPressed: _togglePasswordVisibility,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text("Update Password"),
-        ),
-      ),
       body: SingleChildScrollView(
         child: Form(
           key: _key,
           child: Column(
             children: [
-              // Current Password
               Container(
                 margin: const EdgeInsets.all(20),
                 child: TextFormField(
-                  focusNode: _fcCurrPass,
                   controller: _ctlCurrPass,
-                  decoration: const InputDecoration(
+                  obscureText: !_showPassword, // Use show password state
+                  decoration: InputDecoration(
                     labelText: "Current Password",
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _buildPasswordVisibilityIconButton(),
                   ),
                   textInputAction: TextInputAction.done,
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return "Please enter your password";
                     }
-
-                    currPass = v;
-
                     return null;
                   },
                 ),
               ),
-
-              // New password
               Container(
                 margin: const EdgeInsets.all(20),
                 child: TextFormField(
                   controller: _ctlNewPass,
-                  decoration: const InputDecoration(
+                  obscureText: !_showPassword, // Use show password state
+                  decoration: InputDecoration(
                     labelText: "New Password",
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _buildPasswordVisibilityIconButton(),
                   ),
                   textInputAction: TextInputAction.done,
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return "Please enter your password";
                     }
-
                     if (v.length < 6) {
                       return "New password must at least 6 characters";
                     }
-
-                    newPass = v;
-
                     return null;
                   },
                 ),
               ),
-
-              // Confirm password
               Container(
                 margin: const EdgeInsets.all(20),
                 child: TextFormField(
                   controller: _ctlConfPass,
-                  decoration: const InputDecoration(
+                  obscureText: !_showPassword, // Use show password state
+                  decoration: InputDecoration(
                     labelText: "Confirm Password",
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _buildPasswordVisibilityIconButton(),
                   ),
                   textInputAction: TextInputAction.done,
                   validator: (v) {
                     if (v == null || v.isEmpty) {
                       return "Please enter your password";
                     }
-
                     if (v.length < 6) {
                       return "New password must at least 6 characters";
                     }
-
-                    confPass = v;
-
                     return null;
                   },
                 ),
               ),
-
-              // Error after validate
-              errorMessage == "" ? Container() : _errorBox(errorMessage),
-
-              // Submit button
+              errorMessage == ""
+                  ? Container()
+                  : Text(errorMessage), // Use Text widget for error message
               Container(
                 margin: const EdgeInsets.all(20),
                 child: ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.blue),
+                    MaterialStateProperty.all<Color>(Colors.blue),
                   ),
                   onPressed: _handleSubmit,
                   child: const Center(
@@ -205,5 +143,54 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         ),
       ),
     );
+  }
+
+  void _handleSubmit() {
+    if (_key.currentState?.validate() ?? false) {
+      if (_ctlNewPass.text != _ctlConfPass.text) {
+        setState(() {
+          errorMessage =
+          "Your new password and confirm password must be the same";
+        });
+        return;
+      }
+
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        setState(() {
+          errorMessage = "Null user, so cannot change password";
+        });
+        return;
+      }
+
+      _updatePassword(user, _ctlCurrPass.text, _ctlNewPass.text);
+    } else {
+      setState(() {
+        _ctlNewPass.text = "";
+        _ctlConfPass.text = "";
+        errorMessage = "Error validate";
+      });
+    }
+  }
+
+  Future<void> _updatePassword(
+      User user, String currPass, String newPass) async {
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currPass,
+      );
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPass);
+      setState(() {
+        errorMessage = "Update Password successfully";
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage =
+        'Failed to update password. Please check your current password.';
+      });
+    }
   }
 }

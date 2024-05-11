@@ -1,5 +1,6 @@
 import 'package:english_flashcard/folder_handle/folder_list.dart';
-import 'package:english_flashcard/homepage/user_list.dart';
+import 'package:english_flashcard/account/user_setting.dart';
+import 'package:english_flashcard/topic_handle/topic_list.dart';
 import 'package:flutter/material.dart';
 
 class MainHomePage extends StatefulWidget {
@@ -14,17 +15,13 @@ class _MainHomePageState extends State<MainHomePage> {
 
   List<Widget> widgetList = const [
     FolderListPage(),
-    UserHomePage(),
+    TopicListPage(mode: 0, folderId: ""),
+    UserSettings(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text("Home page"),
-        ),
-      ),
       body: IndexedStack(
         index: _currIndex,
         children: widgetList,
@@ -42,8 +39,12 @@ class _MainHomePageState extends State<MainHomePage> {
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "History",
+            icon: Icon(Icons.book),
+            label: "Library",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: "Settings",
           ),
         ],
       ),
