@@ -1,5 +1,6 @@
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/models/word_model.dart';
+import 'package:english_flashcard/quiz/quiz_screen.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/repository/word_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,14 +27,21 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   final _ctlEnglish = TextEditingController();
   final _ctlVietnamese = TextEditingController();
 
-
-
   String topicId = "";
+
+  List wordList = [];
 
   @override
   void initState() {
     super.initState();
     fetchTopicId();
+  }
+
+  @override
+  void dispose() {
+    _ctlVietnamese.dispose();
+    _ctlEnglish.dispose();
+    super.dispose();
   }
 
   void fetchTopicId() async {
@@ -79,6 +87,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
               child: Text("No word"),
             );
           }
+          this.wordList = wordList;
           return ListView.builder(
             itemCount: wordList.length,
             itemBuilder: (context, index) {
@@ -92,6 +101,26 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     );
   }
 
+  Widget _toQuizScreen() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20, bottom: 20),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QuizScreen(
+                topicId: topicId,
+                wordList: wordList,
+              ),
+            ),
+          );
+        },
+        child: const Text(" To word list"),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +130,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
       body: SafeArea(
         child: Column(
           children: [
+            _toQuizScreen(),
             _topicBox(topicId),
           ],
         ),
