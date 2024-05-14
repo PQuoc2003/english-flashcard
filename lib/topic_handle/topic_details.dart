@@ -1,10 +1,12 @@
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/models/word_model.dart';
+import 'package:english_flashcard/flash_card/FlashCardScreen.dart';
 import 'package:english_flashcard/quiz/quiz_screen.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/repository/word_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:english_flashcard/word_typing/typing_practice_screen.dart';
 
 class TopicDetailsPage extends StatefulWidget {
   final TopicModel topicModel;
@@ -29,7 +31,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
 
   String topicId = "";
 
-  List wordList = [];
+  List<WordModel> wordList = [];
 
   @override
   void initState() {
@@ -87,12 +89,11 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
               child: Text("No word"),
             );
           }
-          this.wordList = wordList;
+          this.wordList = wordList.map((doc) => doc.data() as WordModel).toList();
           return ListView.builder(
             itemCount: wordList.length,
             itemBuilder: (context, index) {
               WordModel wordModel = wordList[index].data();
-              // String docId = wordList[index].id;
               return listItems(context, index, wordModel);
             },
           );
@@ -116,7 +117,47 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
             ),
           );
         },
-        child: const Text(" To word list"),
+        child: const Text("To Quiz"),
+      ),
+    );
+  }
+
+  Widget _toTypingPracticeScreen() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20, bottom: 20),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TypingPracticeScreen(
+                topicId: topicId,
+                wordList: wordList,
+              ),
+            ),
+          );
+        },
+        child: const Text("To Typing Practice"),
+      ),
+    );
+  }
+
+  // New method to navigate to FlashcardScreen
+  Widget _toFlashcardScreen() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20, bottom: 20),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FlashcardScreen(
+                wordList: wordList,
+              ),
+            ),
+          );
+        },
+        child: const Text("To Flashcards"),
       ),
     );
   }
@@ -131,6 +172,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
         child: Column(
           children: [
             _toQuizScreen(),
+            _toTypingPracticeScreen(),
+            _toFlashcardScreen(), // Add the new button here
             _topicBox(topicId),
           ],
         ),
@@ -153,59 +196,57 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                     child: const Text('Cancel'),
                   ),
                   TextButton(
-                      onPressed: () async {
-                        final navigator = Navigator.of(context);
-                        if (_key.currentState?.validate() ?? false) {
-                          String english = _ctlEnglish.text.toString();
-                          String vietnamese = _ctlVietnamese.text.toString();
-                          bool isLearned = false;
+                    onPressed: () async {
+                      final navigator = Navigator.of(context);
+                      if (_key.currentState?.validate() ?? false) {
+                        String english = _ctlEnglish.text.toString();
+                        String vietnamese = _ctlVietnamese.text.toString();
+                        bool isLearned = false;
 
-                          WordModel wordModel = WordModel(
-                              english: english,
-                              vietnamese: vietnamese,
-                              isLearned: isLearned,
-                              topicId: topicId);
+                        WordModel wordModel = WordModel(
+                            english: english,
+                            vietnamese: vietnamese,
+                            isLearned: isLearned,
+                            topicId: topicId);
 
-                          wordRepository.addWord(context, wordModel);
+                        wordRepository.addWord(context, wordModel);
 
-                          navigator.pop();
-                        }
-                      },
-                      child: const Text('Add'))
+                        navigator.pop();
+                      }
+                    },
+                    child: const Text('Add'),
+                  ),
                 ],
-                content: AlertDialog(
-                  title: const Text('Add new word'),
-                  content: Form(
-                    key: _key,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: _ctlEnglish,
-                          decoration: const InputDecoration(
-                            labelText: 'English',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
+                content: Form(
+                  key: _key,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _ctlEnglish,
+                        decoration: const InputDecoration(
+                          labelText: 'English',
                         ),
-                        TextFormField(
-                          controller: _ctlVietnamese,
-                          decoration: const InputDecoration(
-                            labelText: 'Vietnamese',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _ctlVietnamese,
+                        decoration: const InputDecoration(
+                          labelText: 'Vietnamese',
                         ),
-                      ],
-                    ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );
