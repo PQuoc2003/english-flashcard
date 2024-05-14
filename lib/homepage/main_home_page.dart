@@ -1,6 +1,6 @@
-import 'package:english_flashcard/folder_handle/folder_list.dart';
 import 'package:english_flashcard/account/user_setting.dart';
-import 'package:english_flashcard/topic_handle/topic_list.dart';
+import 'package:english_flashcard/homepage/library_home_page.dart';
+import 'package:english_flashcard/homepage/search_homepage.dart';
 import 'package:flutter/material.dart';
 
 class MainHomePage extends StatefulWidget {
@@ -14,8 +14,8 @@ class _MainHomePageState extends State<MainHomePage> {
   int _currIndex = 0;
 
   List<Widget> widgetList = const [
-    FolderListPage(),
-    TopicListPage(mode: 0, folderId: ""),
+    RecentHomepage(),
+    LibraryHomePage(),
     UserSettings(),
   ];
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_flashcard/models/folder_model.dart';
 import 'package:english_flashcard/repository/folder_repo.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CreateFolderPage extends StatefulWidget {
@@ -31,13 +32,14 @@ class _CreateFolderPageState extends State<CreateFolderPage> {
   void _handleSubmit() {
 
     if (_key.currentState?.validate() ?? false) {
+      final user = FirebaseAuth.instance.currentUser;
       FolderModel folderModel = FolderModel(
         folderName: myTitle,
         folderDes: myDescription ?? "",
         folderCreated: Timestamp.now(),
         folderIsPublic: false,
         numberOfTopic: 0,
-        uid: "1",
+        uid: user?.uid ?? "1",
       );
 
       folderRepository.createFolder(context, folderModel);

@@ -1,6 +1,8 @@
 import 'package:english_flashcard/folder_handle/create_folder_form.dart';
 import 'package:english_flashcard/models/folder_model.dart';
 import 'package:english_flashcard/repository/folder_repo.dart';
+import 'package:english_flashcard/topic_handle/topic_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class FolderListPage extends StatefulWidget {
@@ -13,9 +15,8 @@ class FolderListPage extends StatefulWidget {
 class _FolderListPageState extends State<FolderListPage> {
   final FolderRepository folderRepository = FolderRepository();
 
-  String currUID = "1";
-
-  Widget listItems(BuildContext context, int index, FolderModel folderModel) {
+  Widget listItems(BuildContext context, int index, FolderModel folderModel,
+      String folderId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -25,6 +26,14 @@ class _FolderListPageState extends State<FolderListPage> {
         leading: Text(index.toString()),
         title: Text(folderModel.folderName),
         subtitle: Text(folderModel.numberOfTopic.toString()),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => TopicListPage(mode: 1, folderId: folderId, folderModel: folderModel,),
+            ),
+          );
+        },
       ),
     );
   }
@@ -34,12 +43,13 @@ class _FolderListPageState extends State<FolderListPage> {
         MaterialPageRoute(builder: (context) => const CreateFolderPage()));
   }
 
-  Widget _folderBox(String uid) {
+  Widget _folderBox() {
+    final user = FirebaseAuth.instance.currentUser;
     return SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.8,
       width: MediaQuery.sizeOf(context).width,
       child: StreamBuilder(
-        stream: folderRepository.getFolderByUserId(uid),
+        stream: folderRepository.getFolderByUserId(user?.uid ?? "2"),
         builder: (context, snapshots) {
           List folderList = snapshots.data?.docs ?? [];
           if (folderList.isEmpty) {
@@ -61,8 +71,8 @@ class _FolderListPageState extends State<FolderListPage> {
             itemCount: folderList.length,
             itemBuilder: (context, index) {
               FolderModel folderModel = folderList[index].data();
-              // String docId = usersList[index].id;
-              return listItems(context, index, folderModel);
+              String docId = folderList[index].id;
+              return listItems(context, index, folderModel, docId);
             },
           );
         },
@@ -74,10 +84,12 @@ class _FolderListPageState extends State<FolderListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            _folderBox(currUID),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _folderBox(),
+            ],
+          ),
         ),
       ),
     );

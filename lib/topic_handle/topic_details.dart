@@ -106,6 +106,15 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
       margin: const EdgeInsets.only(top: 20, bottom: 20),
       child: ElevatedButton(
         onPressed: () {
+          if (wordList.length < 2) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Need at least 2 word to create list"),
+              ),
+            );
+            return;
+          }
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -116,7 +125,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
             ),
           );
         },
-        child: const Text(" To word list"),
+        child: const Text("Quiz now"),
       ),
     );
   }
@@ -125,6 +134,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue,
         title: Text(widget.topicModel.topicName),
       ),
       body: SafeArea(
