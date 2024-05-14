@@ -10,9 +10,9 @@ class ChangePasswordPage extends StatefulWidget {
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _showPassword = false; // Add show password state
-  late TextEditingController _ctlCurrPass;
-  late TextEditingController _ctlNewPass;
-  late TextEditingController _ctlConfPass;
+  final _ctlCurrPass = TextEditingController();
+  final _ctlNewPass = TextEditingController();
+  final _ctlConfPass = TextEditingController();
   final _key = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
   String errorMessage = "";
@@ -20,9 +20,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   void initState() {
     super.initState();
-    _ctlCurrPass = TextEditingController();
-    _ctlNewPass = TextEditingController();
-    _ctlConfPass = TextEditingController();
+    _ctlCurrPass.clear();
+    _ctlNewPass.clear();
+    _ctlConfPass.clear();
   }
 
   @override
@@ -45,6 +45,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       onPressed: _togglePasswordVisibility,
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +186,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       await user.updatePassword(newPass);
       setState(() {
         errorMessage = "Update Password successfully";
+        _ctlCurrPass.clear();
+        _ctlNewPass.clear();
+        _ctlConfPass.clear();
       });
     } catch (e) {
       setState(() {

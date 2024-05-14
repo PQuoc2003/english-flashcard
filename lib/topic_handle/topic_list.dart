@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:english_flashcard/models/folder_model.dart';
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/topic_handle/topic_details.dart';
@@ -8,11 +9,13 @@ import 'package:flutter/material.dart';
 class TopicListPage extends StatefulWidget {
   final int mode;
   final String folderId;
+  final FolderModel? folderModel;
 
   const TopicListPage({
     super.key,
     required this.mode,
     required this.folderId,
+    this.folderModel,
   });
 
   @override
@@ -25,7 +28,6 @@ class _TopicListPageState extends State<TopicListPage> {
   final _key = GlobalKey<FormState>();
   final _cltTitleTopic = TextEditingController();
   final _cltDescriptionTopic = TextEditingController();
-
 
   @override
   void dispose() {
@@ -100,11 +102,20 @@ class _TopicListPageState extends State<TopicListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Center(
+          child: widget.folderModel != null
+              ? Text("${widget.folderModel?.folderName}")
+              : const Text("Topic list"),
+        ),
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            _topicBox(widget.mode),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _topicBox(widget.mode),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
