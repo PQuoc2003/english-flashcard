@@ -6,13 +6,13 @@ class TypingPracticeScreen extends StatefulWidget {
   final List<dynamic> wordList;
 
   const TypingPracticeScreen({
-    Key? key,
+    super.key,
     required this.topicId,
     required this.wordList,
-  }) : super(key: key);
+  });
 
   @override
-  _TypingPracticeScreenState createState() => _TypingPracticeScreenState();
+  State<TypingPracticeScreen> createState() => _TypingPracticeScreenState();
 }
 
 class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
@@ -41,7 +41,7 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
 
   void nextWord() {
     if (index == myWordList.length - 1) {
-      Navigator.popUntil(context, ModalRoute.withName('/topic_detail'));
+      Navigator.pop(context);
       return;
     }
     setState(() {

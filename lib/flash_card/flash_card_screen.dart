@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:english_flashcard/models/word_model.dart';
 
 class FlashcardScreen extends StatefulWidget {
-  final List<WordModel> wordList;
 
-  const FlashcardScreen({Key? key, required this.wordList}) : super(key: key);
+  final List wordList;
+
+  const FlashcardScreen({super.key, required this.wordList});
 
   @override
-  _FlashcardScreenState createState() => _FlashcardScreenState();
+  State<FlashcardScreen> createState() => _FlashcardScreenState();
 }
 
 class _FlashcardScreenState extends State<FlashcardScreen> {
@@ -35,26 +37,21 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     super.dispose();
   }
 
-  void initSequence() async {
-    await initWordList();
+  void initSequence() {
+    initWordList();
     if (autoPronunciation) {
-      await playPronunciation();
+      playPronunciation();
     }
   }
 
-  Future<void> initWordList() async {
-    myWordList = widget.wordList.map((doc) {
-      return WordModel(
-        english: doc.english,
-        vietnamese: doc.vietnamese,
-        isLearned: doc.isLearned,
-        topicId: doc.topicId,
-      );
-    }).toList();
+  void initWordList() {
 
-    setState(() {
-      myWordList.shuffle();
-    });
+    for (int i = 0; i < widget.wordList.length; i++) {
+      WordModel myWord = widget.wordList[i].data();
+      myWordList.add(myWord);
+    }
+    myWordList.shuffle(Random());
+
   }
 
   Future<void> playPronunciation() async {
@@ -91,18 +88,18 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     }
   }
 
-  void toggleStarred() {
-    setState(() {
-      showStarredOnly = !showStarredOnly;
-      if (showStarredOnly) {
-        myWordList = widget.wordList.where((word) => word.isLearned).toList();
-      } else {
-        myWordList = List.from(widget.wordList);
-      }
-      currentIndex = 0;
-      showFront = true;
-    });
-  }
+  // void toggleStarred() {
+  //   setState(() {
+  //     showStarredOnly = !showStarredOnly;
+  //     if (showStarredOnly) {
+  //       myWordList = widget.wordList.where((word) => word.isLearned).toList();
+  //     } else {
+  //       myWordList = List.from(widget.wordList);
+  //     }
+  //     currentIndex = 0;
+  //     showFront = true;
+  //   });
+  // }
 
   void shuffleWords() {
     setState(() {
@@ -204,17 +201,18 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Show only learned words'),
-                Switch(
-                  value: showStarredOnly,
-                  onChanged: (value) => toggleStarred(),
-                ),
-              ],
-            ),
+            // const SizedBox(height: 20.0),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     const Text('Show only learned words'),
+            //     Switch(
+            //       value: showStarredOnly,
+            //       // onChanged: (value) => toggleStarred(),
+            //       onChanged: (value){},
+            //     ),
+            //   ],
+            // ),
           ],
         ),
       ),

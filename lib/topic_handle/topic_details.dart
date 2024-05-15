@@ -4,7 +4,7 @@ import 'package:english_flashcard/quiz/quiz_screen.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/repository/word_repo.dart';
 import 'package:english_flashcard/word_typing/typing_practice_screen.dart';
-import 'package:english_flashcard/flash_card/FlashCardScreen.dart';
+import 'package:english_flashcard/flash_card/flash_card_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -172,7 +172,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => FlashcardScreen(
-                    wordList: wordList.cast<WordModel>(),
+                    wordList: wordList,
                   ),
                 ),
               );
