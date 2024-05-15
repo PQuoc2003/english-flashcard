@@ -191,12 +191,14 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
         backgroundColor: Colors.blue,
         title: Text(widget.topicModel.topicName),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _navigationButtons(),
-            _topicBox(topicId),
-          ],
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _navigationButtons(),
+              _topicBox(topicId),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

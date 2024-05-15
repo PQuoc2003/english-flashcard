@@ -30,7 +30,11 @@ class _FolderListPageState extends State<FolderListPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (ctx) => TopicListPage(mode: 1, folderId: folderId, folderModel: folderModel,),
+              builder: (ctx) => TopicListPage(
+                mode: 1,
+                folderId: folderId,
+                folderModel: folderModel,
+              ),
             ),
           );
         },
@@ -39,8 +43,12 @@ class _FolderListPageState extends State<FolderListPage> {
   }
 
   void _createFolder() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const CreateFolderPage()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CreateFolderPage(),
+      ),
+    );
   }
 
   Widget _folderBox() {
@@ -91,6 +99,10 @@ class _FolderListPageState extends State<FolderListPage> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _createFolder,
+        child: const Icon(Icons.add),
       ),
     );
   }
