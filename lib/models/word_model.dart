@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class WordModel {
   String english;
   String vietnamese;
@@ -43,4 +41,5 @@ class WordModel {
       topicId: topicId ?? this.topicId,
     );
   }
+
 }

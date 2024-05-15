@@ -12,22 +12,20 @@ class FlashcardScreen extends StatefulWidget {
 }
 
 class _FlashcardScreenState extends State<FlashcardScreen> {
+  List<WordModel> myWordList = [];
   int currentIndex = 0;
   bool showFront = true;
   bool autoPronunciation = true;
   bool showStarredOnly = false;
   bool autoMode = false;
-  List<WordModel> displayList = [];
   Timer? autoModeTimer;
   Timer? pronunciationDebounceTimer;
 
   @override
+  @override
   void initState() {
     super.initState();
-    displayList = widget.wordList;
-    if (autoPronunciation) {
-      playPronunciation();
-    }
+    initSequence();
   }
 
   @override
@@ -37,13 +35,35 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     super.dispose();
   }
 
-  void playPronunciation() {
+  void initSequence() async {
+    await initWordList();
+    if (autoPronunciation) {
+      await playPronunciation();
+    }
+  }
+
+  Future<void> initWordList() async {
+    myWordList = widget.wordList.map((doc) {
+      return WordModel(
+        english: doc.english,
+        vietnamese: doc.vietnamese,
+        isLearned: doc.isLearned,
+        topicId: doc.topicId,
+      );
+    }).toList();
+
+    setState(() {
+      myWordList.shuffle();
+    });
+  }
+
+  Future<void> playPronunciation() async {
     pronunciationDebounceTimer?.cancel();
     pronunciationDebounceTimer = Timer(const Duration(milliseconds: 300), () {
       // Implement your text-to-speech or audio play logic here
-      print("Playing pronunciation: ${displayList[currentIndex].english}");
     });
   }
+
 
   void flipCard() {
     setState(() {
@@ -53,7 +73,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
 
   void nextCard() {
     setState(() {
-      currentIndex = (currentIndex + 1) % displayList.length;
+      currentIndex = (currentIndex + 1) % myWordList.length;
       showFront = true;
     });
     if (autoPronunciation) {
@@ -63,7 +83,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
 
   void previousCard() {
     setState(() {
-      currentIndex = (currentIndex - 1 + displayList.length) % displayList.length;
+      currentIndex = (currentIndex - 1 + myWordList.length) % myWordList.length;
       showFront = true;
     });
     if (autoPronunciation) {
@@ -74,9 +94,11 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
   void toggleStarred() {
     setState(() {
       showStarredOnly = !showStarredOnly;
-      displayList = showStarredOnly
-          ? widget.wordList.where((word) => word.isLearned).toList()
-          : widget.wordList;
+      if (showStarredOnly) {
+        myWordList = widget.wordList.where((word) => word.isLearned).toList();
+      } else {
+        myWordList = List.from(widget.wordList);
+      }
       currentIndex = 0;
       showFront = true;
     });
@@ -84,7 +106,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
 
   void shuffleWords() {
     setState(() {
-      displayList.shuffle();
+      myWordList.shuffle();
       currentIndex = 0;
       showFront = true;
     });
@@ -108,7 +130,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (displayList.isEmpty) {
+    if (myWordList.isEmpty) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Flashcards'),
@@ -119,7 +141,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
       );
     }
 
-    final currentWord = displayList[currentIndex];
+    final currentWord = myWordList[currentIndex];
 
     return Scaffold(
       appBar: AppBar(
@@ -131,7 +153,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Word ${currentIndex + 1} / ${displayList.length}',
+              'Word ${currentIndex + 1} / ${myWordList.length}',
               style: const TextStyle(fontSize: 16.0),
             ),
             const SizedBox(height: 20.0),
