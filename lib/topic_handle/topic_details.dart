@@ -3,6 +3,8 @@ import 'package:english_flashcard/models/word_model.dart';
 import 'package:english_flashcard/quiz/quiz_screen.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/repository/word_repo.dart';
+import 'package:english_flashcard/word_typing/typing_practice_screen.dart';
+import 'package:english_flashcard/flash_card/flash_card_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -101,32 +103,84 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     );
   }
 
-  Widget _toQuizScreen() {
-    return Container(
-      margin: const EdgeInsets.only(top: 20, bottom: 20),
-      child: ElevatedButton(
-        onPressed: () {
-          if (wordList.length < 2) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Need at least 2 word to create list"),
-              ),
-            );
-            return;
-          }
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => QuizScreen(
-                topicId: topicId,
-                wordList: wordList,
-              ),
-            ),
-          );
-        },
-        child: const Text("Quiz now"),
-      ),
+  Widget _navigationButtons() {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 20, bottom: 20),
+          child: ElevatedButton(
+            onPressed: () {
+              if (wordList.length < 2) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Need at least 2 words to start a quiz"),
+                  ),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QuizScreen(
+                    topicId: topicId,
+                    wordList: wordList,
+                  ),
+                ),
+              );
+            },
+            child: const Text("Quiz now"),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          child: ElevatedButton(
+            onPressed: () {
+              if (wordList.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("No words available for typing practice"),
+                  ),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TypingPracticeScreen(
+                    topicId: topicId,
+                    wordList: wordList,
+                  ),
+                ),
+              );
+            },
+            child: const Text("Typing Practice"),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          child: ElevatedButton(
+            onPressed: () {
+              if (wordList.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("No words available for flashcards"),
+                  ),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FlashcardScreen(
+                    wordList: wordList,
+                  ),
+                ),
+              );
+            },
+            child: const Text("Flashcards"),
+          ),
+        ),
+      ],
     );
   }
 
@@ -137,12 +191,14 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
         backgroundColor: Colors.blue,
         title: Text(widget.topicModel.topicName),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _toQuizScreen(),
-            _topicBox(topicId),
-          ],
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _navigationButtons(),
+              _topicBox(topicId),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

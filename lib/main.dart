@@ -14,7 +14,7 @@ Future<void> main() async{
           projectId: "flutter-quizzlet",
           storageBucket: "flutter-quizzlet.appspot.com",
           messagingSenderId: "769030931603",
-          appId: "1:769030931603:android:17709d3069cf0c2037f966",
+          appId: "1:769030931603:web:17709d3069cf0c2037f966",
           measurementId: "G-5QGE2EB3X4"
       )
   );
