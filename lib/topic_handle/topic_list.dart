@@ -63,7 +63,7 @@ class _TopicListPageState extends State<TopicListPage> {
         trailing: IconButton(
           icon: const Icon(CupertinoIcons.trash),
           onPressed: () {
-            // Add logic to delete the topic
+            topicRepository.deleteTopic(context, topicId);
           },
         ),
       ),

@@ -75,4 +75,20 @@ class TopicRepository {
       );
     });
   }
+
+  Future<void> deleteTopic(BuildContext context, String topicId) async {
+    await _topicRef.doc(topicId).delete().then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Topic deleted successfully!'),
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed when deleting topic'),
+        ),
+      );
+    });
+  }
 }
