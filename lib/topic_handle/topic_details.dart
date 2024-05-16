@@ -109,76 +109,88 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
       children: [
         Container(
           margin: const EdgeInsets.only(top: 20, bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 30,
             children: [
-              CupertinoButton(
-                onPressed: () {
-                  if (wordList.length < 2) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Need at least 2 words to start a quiz"),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                child: CupertinoButton(
+                  onPressed: () {
+                    if (wordList.length < 2) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("Need at least 2 words to start a quiz"),
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QuizScreen(
+                          topicId: topicId,
+                          wordList: wordList,
+                        ),
                       ),
                     );
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => QuizScreen(
-                        topicId: topicId,
-                        wordList: wordList,
-                      ),
-                    ),
-                  );
-                },
-                color: Colors.blue,
-                child: const Text("Quiz now"),
+                  },
+                  color: Colors.blue,
+                  child: const Text("Quiz now"),
+                ),
               ),
-              CupertinoButton(
-                onPressed: () {
-                  if (wordList.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("No words available for typing practice"),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                child: CupertinoButton(
+                  onPressed: () {
+                    if (wordList.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("No words available for typing practice"),
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TypingPracticeScreen(
+                          topicId: topicId,
+                          wordList: wordList,
+                        ),
                       ),
                     );
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TypingPracticeScreen(
-                        topicId: topicId,
-                        wordList: wordList,
-                      ),
-                    ),
-                  );
-                },
-                color: Colors.blue,
-                child: const Text("Typing Practice"),
+                  },
+                  color: Colors.blue,
+                  child: const Text("Typing Practice"),
+                ),
               ),
-              CupertinoButton(
-                onPressed: () {
-                  if (wordList.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("No words available for flashcards"),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                child: CupertinoButton(
+                  onPressed: () {
+                    if (wordList.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("No words available for flashcards"),
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FlashcardScreen(
+                          wordList: wordList,
+                        ),
                       ),
                     );
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FlashcardScreen(
-                        wordList: wordList,
-                      ),
-                    ),
-                  );
-                },
-                color: Colors.blue,
-                child: const Text("Flashcards"),
+                  },
+                  color: Colors.blue,
+                  child: const Text("Flashcards"),
+                ),
               ),
             ],
           ),

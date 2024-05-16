@@ -123,6 +123,8 @@ class _TopicListPageState extends State<TopicListPage> {
               ),
               CupertinoDialogAction(
                 onPressed: () async {
+                  final navigator = Navigator.of(context);
+
                   if (_key.currentState?.validate() ?? false) {
                     setState(() {});
 
@@ -146,10 +148,9 @@ class _TopicListPageState extends State<TopicListPage> {
 
                     await topicRepository.createTopic(context, topicModel);
 
-                    Navigator.pop(context);
+                    navigator.pop();
 
-                    Navigator.push(
-                      context,
+                    navigator.push(
                       MaterialPageRoute(
                         builder: (context) => TopicDetailsPage(
                           topicModel: topicModel,
