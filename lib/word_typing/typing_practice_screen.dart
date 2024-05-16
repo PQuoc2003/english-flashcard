@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:english_flashcard/models/word_model.dart';
 
 class TypingPracticeScreen extends StatefulWidget {
@@ -23,6 +24,8 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
   String? correctAnswer;
   bool showResult = false;
   late TextEditingController _controller;
+  int correctCount = 0;
+  int totalCount = 0;
 
   @override
   void initState() {
@@ -41,7 +44,7 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
 
   void nextWord() {
     if (index == myWordList.length - 1) {
-      Navigator.pop(context);
+      showScore();
       return;
     }
     setState(() {
@@ -67,7 +70,35 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
     setState(() {
       showResult = true;
       userInput = _controller.text;
+      if (isCorrect) {
+        correctCount++;
+      }
+      totalCount++;
     });
+  }
+
+  void showScore() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Practice Finished'),
+          content: Text(
+            'Your Score: $correctCount / $totalCount',
+            style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK', style: TextStyle(fontSize: 16.0)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -77,26 +108,32 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Typing Practice'),
+        title: const Text(
+          'Typing Practice',
+          style: TextStyle(fontSize: 20.0),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Text(
+              'Type the English meaning of:',
+              style: TextStyle(fontSize: 20.0),
+            ),
+            const SizedBox(height: 10.0),
             Text(
               currentWord.vietnamese,
-              style: const TextStyle(fontSize: 24.0),
+              style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20.0),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Enter the English meaning',
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-                counterText: '${_controller.text.length}/$maxLength',
+            CupertinoTextField(
+              decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.circular(8.0),
               ),
+              placeholder: 'Enter your answer',
               textAlign: TextAlign.center,
               controller: _controller,
               onChanged: (value) {
@@ -109,18 +146,25 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
             const SizedBox(height: 20.0),
             if (showResult)
               Text(
-                correctAnswer ?? '',
-                style: TextStyle(color: isCorrect ? Colors.green : Colors.red),
+                isCorrect ? 'Correct!' : 'Incorrect. The correct answer is: $correctAnswer',
+                style: TextStyle(color: isCorrect ? Colors.green : Colors.red, fontSize: 18.0),
               ),
             const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: submitAnswer,
-              child: const Text('Submit'),
-            ),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: nextWord,
-              child: const Text('Next Word'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CupertinoButton(
+                  onPressed: submitAnswer,
+                  color: Colors.blue,
+                  child: const Text('Submit', style: TextStyle(fontSize: 16.0)),
+                ),
+                const SizedBox(width: 20.0),
+                CupertinoButton(
+                  onPressed: nextWord,
+                  color: Colors.blue,
+                  child: const Text('Next Word', style: TextStyle(fontSize: 16.0)),
+                ),
+              ],
             ),
           ],
         ),

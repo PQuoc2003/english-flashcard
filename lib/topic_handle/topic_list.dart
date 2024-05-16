@@ -4,6 +4,7 @@ import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/repository/topic_repo.dart';
 import 'package:english_flashcard/topic_handle/topic_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TopicListPage extends StatefulWidget {
@@ -37,26 +38,19 @@ class _TopicListPageState extends State<TopicListPage> {
   }
 
   Widget listItems(
-    BuildContext context,
-    int index,
-    TopicModel topicModel,
-    String topicId,
-  ) {
+      BuildContext context, int index, TopicModel topicModel, String topicId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
         horizontal: 10,
       ),
       child: ListTile(
-        leading: Text(index.toString()),
+        leading: const CircleAvatar(
+          child: Icon(CupertinoIcons.book),
+        ),
         title: Text(topicModel.topicName),
-        subtitle: Text(topicModel.numberOfWord.toString()),
+        subtitle: Text("Words: ${topicModel.numberOfWord}"),
         onTap: () {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(
-          //     content: Text('Topic ID: $topicId'),
-          //   ),
-          // );
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -66,26 +60,137 @@ class _TopicListPageState extends State<TopicListPage> {
             ),
           );
         },
+        trailing: IconButton(
+          icon: const Icon(CupertinoIcons.trash),
+          onPressed: () {
+            // Add logic to delete the topic
+          },
+        ),
       ),
+    );
+  }
+
+  Future<void> _createTopic() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Material(
+          // Add Material widget here
+          child: CupertinoAlertDialog(
+            title: const Text('Create New Topic'),
+            content: Form(
+              key: _key,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _cltTitleTopic,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      icon: Icon(CupertinoIcons.textformat),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a value';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _cltDescriptionTopic,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      icon: Icon(CupertinoIcons.textformat_size),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a value';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              CupertinoDialogAction(
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
+
+                  if (_key.currentState?.validate() ?? false) {
+                    setState(() {});
+
+                    String topicName = _cltTitleTopic.text.toString();
+                    String topicDescription =
+                        _cltDescriptionTopic.text.toString();
+                    Timestamp createdDate = Timestamp.now();
+                    String folderId = widget.folderId;
+                    int currLearningIndex = 0;
+                    int numberOfWord = 0;
+
+                    TopicModel topicModel = TopicModel(
+                      topicName: topicName,
+                      topicDescription: topicDescription,
+                      createdDate: createdDate,
+                      folderId: folderId,
+                      uid: user?.uid ?? "1",
+                      currLearningIndex: currLearningIndex,
+                      numberOfWord: numberOfWord,
+                    );
+
+                    await topicRepository.createTopic(context, topicModel);
+
+                    navigator.pop();
+
+                    navigator.push(
+                      MaterialPageRoute(
+                        builder: (context) => TopicDetailsPage(
+                          topicModel: topicModel,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _topicBox(int mode) {
     final user = FirebaseAuth.instance.currentUser;
     return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.8,
-      width: MediaQuery.sizeOf(context).width,
+      height: MediaQuery.of(context).size.height * 0.8,
+      width: MediaQuery.of(context).size.width,
       child: StreamBuilder(
         stream: mode == 0
             ? topicRepository.getTopicByUserId(user?.uid ?? "1")
             : topicRepository.getTopicByFolderId(widget.folderId),
         builder: (context, snapshots) {
+          if (snapshots.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CupertinoActivityIndicator(),
+            );
+          }
+
           List topicList = snapshots.data?.docs ?? [];
           if (topicList.isEmpty) {
             return const Center(
-              child: Text("No topic"),
+              child: Text("No topics"),
             );
           }
+
           return ListView.builder(
             itemCount: topicList.length,
             itemBuilder: (context, index) {
@@ -101,15 +206,18 @@ class _TopicListPageState extends State<TopicListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: widget.folderModel != null
-              ? Text("${widget.folderModel?.folderName}")
-              : const Text("Topic list"),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: widget.folderModel != null
+            ? Text("${widget.folderModel?.folderName}")
+            : const Text("Topic List"),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: _createTopic,
+          child: const Icon(CupertinoIcons.add),
         ),
       ),
-      body: SafeArea(
+      child: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -117,102 +225,6 @@ class _TopicListPageState extends State<TopicListPage> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              final user = FirebaseAuth.instance.currentUser;
-              // Clear textField
-              _cltTitleTopic.clear();
-              _cltDescriptionTopic.clear();
-              return AlertDialog(
-                title: const Text('Create new Topic'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                      onPressed: () async {
-                        final navigator = Navigator.of(context);
-                        if (_key.currentState?.validate() ?? false) {
-                          String topicName = _cltTitleTopic.text.toString();
-                          String topicDescription =
-                              _cltDescriptionTopic.text.toString();
-                          Timestamp createdDate = Timestamp.now();
-                          String folderId = widget.folderId;
-                          int currLearningIndex = 0;
-                          int numberOfWord = 0;
-
-                          TopicModel topicModel = TopicModel(
-                            topicName: topicName,
-                            topicDescription: topicDescription,
-                            createdDate: createdDate,
-                            folderId: folderId,
-                            uid: user?.uid ?? "1",
-                            currLearningIndex: currLearningIndex,
-                            numberOfWord: numberOfWord,
-                          );
-
-                          topicRepository.createTopic(context, topicModel);
-
-                          navigator.pop();
-
-                          navigator.push(
-                            MaterialPageRoute(
-                              builder: (context) => TopicDetailsPage(
-                                topicModel: topicModel,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text('Submit'))
-                ],
-                content: AlertDialog(
-                  title: const Text('Add Form'),
-                  content: Form(
-                    key: _key,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: _cltTitleTopic,
-                          decoration: const InputDecoration(
-                            labelText: 'Title',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: _cltDescriptionTopic,
-                          decoration: const InputDecoration(
-                            labelText: 'Description',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
       ),
     );
   }
