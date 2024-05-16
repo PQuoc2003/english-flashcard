@@ -173,7 +173,7 @@ class _QuizScreenState extends State<QuizScreen> {
           Padding(
             padding: const EdgeInsets.all(18),
             child: Text(
-              "score: $score",
+              "Score: $score", // Display user's score in the app bar
               style: const TextStyle(
                 fontSize: 18,
               ),
@@ -186,27 +186,27 @@ class _QuizScreenState extends State<QuizScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              QuestionWidget(
-                  question: questionList[index].question,
-                  indexAction: index,
-                  totalQuestion: questionList.length),
-              const Divider(
-                color: Colors.white,
+              SizedBox(height: 20),
+              QuestionWidget( // Display the current question
+                question: questionList[index].question,
+                indexAction: index,
+                totalQuestion: questionList.length,
               ),
-              const SizedBox(
-                height: 25,
-              ),
+              const Divider(color: Colors.white),
+              SizedBox(height: 20),
               for (int i = 0; i < questionList[index].options.length; i++)
                 GestureDetector(
                   onTap: () => checkAnswerAndUpdate(
-                      questionList[index].options.values.toList()[i]),
+                    questionList[index].options.values.toList()[i],
+                  ),
                   child: OptionCard(
                     option: questionList[index].options.keys.toList()[i],
                     color: isPressed
                         ? questionList[index].options.values.toList()[i] == true
-                            ? Colors.green
-                            : Colors.red
+                        ? Colors.green
+                        : Colors.red
                         : Colors.blue,
                   ),
                 ),

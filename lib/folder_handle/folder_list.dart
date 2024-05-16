@@ -3,6 +3,7 @@ import 'package:english_flashcard/models/folder_model.dart';
 import 'package:english_flashcard/repository/folder_repo.dart';
 import 'package:english_flashcard/topic_handle/topic_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FolderListPage extends StatefulWidget {
@@ -15,6 +16,13 @@ class FolderListPage extends StatefulWidget {
 class _FolderListPageState extends State<FolderListPage> {
   final FolderRepository folderRepository = FolderRepository();
 
+
+  @override
+  void initState() {
+    super.initState();
+// Initialize filter index
+  }
+
   Widget listItems(BuildContext context, int index, FolderModel folderModel,
       String folderId) {
     return Padding(
@@ -23,9 +31,11 @@ class _FolderListPageState extends State<FolderListPage> {
         horizontal: 10,
       ),
       child: ListTile(
-        leading: Text(index.toString()),
+        leading: CircleAvatar(
+          child: Text(index.toString()),
+        ),
         title: Text(folderModel.folderName),
-        subtitle: Text(folderModel.numberOfTopic.toString()),
+        subtitle: Text('${folderModel.numberOfTopic} topics'),
         onTap: () {
           Navigator.push(
             context,
@@ -38,6 +48,12 @@ class _FolderListPageState extends State<FolderListPage> {
             ),
           );
         },
+        trailing: IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () {
+            // Add logic to delete the folder
+          },
+        ),
       ),
     );
   }
@@ -54,8 +70,8 @@ class _FolderListPageState extends State<FolderListPage> {
   Widget _folderBox() {
     final user = FirebaseAuth.instance.currentUser;
     return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.8,
-      width: MediaQuery.sizeOf(context).width,
+      height: MediaQuery.of(context).size.height * 0.8,
+      width: MediaQuery.of(context).size.width,
       child: StreamBuilder(
         stream: folderRepository.getFolderByUserId(user?.uid ?? "2"),
         builder: (context, snapshots) {
@@ -63,13 +79,13 @@ class _FolderListPageState extends State<FolderListPage> {
           if (folderList.isEmpty) {
             return Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("No folder"),
-                  ElevatedButton(
+                  const SizedBox(height: 20),
+                  CupertinoButton.filled(
                     onPressed: _createFolder,
-                    child: const Center(
-                      child: Text("Create folder"),
-                    ),
+                    child: const Text("Create folder"),
                   )
                 ],
               ),
@@ -90,19 +106,21 @@ class _FolderListPageState extends State<FolderListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _folderBox(),
-            ],
-          ),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('Folders'),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: _createFolder,
+          child: const Icon(Icons.add),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createFolder,
-        child: const Icon(Icons.add),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Expanded(child: _folderBox()),
+          ],
+        ),
       ),
     );
   }
