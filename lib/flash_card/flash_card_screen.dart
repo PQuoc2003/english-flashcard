@@ -85,10 +85,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
   void flipCard() {
     if (_flipController.isAnimating) return;
     if (_flipController.isCompleted || _flipController.isDismissed) {
-      _flipController.forward(from: 0.0).then((_) {
-        setState(() {
-          showFront = !showFront;
-        });
+      _flipController.forward(from: 0.0);
+      setState(() {
+        showFront = !showFront;
       });
     }
   }
@@ -136,86 +135,90 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
   void toggleAutoMode() {
     setState(() {
       autoMode = !autoMode;
+      if (autoMode) {
+        autoModeTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+          nextCard();
+        });
+      } else {
+        autoModeTimer?.cancel();
+      }
     });
-    if (autoMode) {
-      autoModeTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-        nextCard();
-      });
-    } else {
-      autoModeTimer?.cancel();
-    }
-  }
-
-  Widget buildCard(BuildContext context, String text, bool isFront) {
-    return AnimatedBuilder(
-      animation: _flipController,
-      builder: (context, child) {
-        final rotation = isFront ? _frontRotation.value : _backRotation.value;
-        return Transform(
-          transform: Matrix4.rotationY(rotation),
-          child: rotation <= pi / 2
-              ? Card(
-            child: Center(
-              child: Text(text, style: const TextStyle(fontSize: 24.0)),
-            ),
-          )
-              : Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.rotationY(pi),
-            child: Card(
-              child: Center(
-                child: Text(text, style: const TextStyle(fontSize: 24.0)),
-              ),
-            ),
-          ),
-        );
-      },
-      child: Card(
-        child: Center(
-          child: Text(text, style: const TextStyle(fontSize: 24.0)),
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentWord = myWordList[currentIndex];
-    final text = showFront ? currentWord.vietnamese : currentWord.english;
+    final currentWord = myWordList.isEmpty ? null : myWordList[currentIndex];
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flashcards'),
-        actions: [
-          IconButton(
-            icon: Icon(autoMode ? Icons.pause : Icons.play_arrow),
-            onPressed: toggleAutoMode,
-          ),
-          IconButton(
-            icon: const Icon(Icons.shuffle),
-            onPressed: shuffleWords,
-          ),
-        ],
       ),
-      body: Center(
-        child: GestureDetector(
-          onTap: flipCard,
-          child: buildCard(context, text, showFront),
+      body: currentWord == null
+          ? const Center(child: Text('No words available.'))
+          : Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Word ${currentIndex + 1} / ${myWordList.length}',
+              style: const TextStyle(fontSize: 16.0),
+            ),
+            const SizedBox(height: 20.0),
+            GestureDetector(
+              onTap: flipCard,
+              child: AnimatedBuilder(
+                animation: _flipController,
+                builder: (context, child) {
+                  final rotationValue = showFront ? _frontRotation.value : _backRotation.value;
+                  return Transform(
+                    transform: Matrix4.identity()..setEntry(3, 2, 0.001)..rotateY(rotationValue),
+                    alignment: Alignment.center,
+                    child: Card(
+                      elevation: 4,
+                      child: Container(
+                        height: 300.0,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        child: Text(
+                          showFront ? currentWord.vietnamese : currentWord.english,
+                          style: const TextStyle(fontSize: 32.0),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: previousCard,
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                IconButton(
+                  onPressed: nextCard,
+                  icon: const Icon(Icons.arrow_forward),
+                ),
+                IconButton(
+                  onPressed: shuffleWords,
+                  icon: const Icon(Icons.shuffle),
+                ),
+                IconButton(
+                  onPressed: toggleAutoMode,
+                  icon: Icon(autoMode ? Icons.pause : Icons.play_arrow),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20.0),
+            IconButton(
+              icon: const Icon(Icons.volume_up),
+              onPressed: playPronunciation,
+            ),
+          ],
         ),
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: previousCard,
-            child: const Icon(Icons.arrow_back),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            onPressed: nextCard,
-            child: const Icon(Icons.arrow_forward),
-          ),
-        ],
       ),
     );
   }
