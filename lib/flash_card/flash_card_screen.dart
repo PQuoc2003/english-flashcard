@@ -10,13 +10,13 @@ class FlashcardScreen extends StatefulWidget {
   const FlashcardScreen({super.key, required this.wordList});
 
   @override
-  _FlashcardScreenState createState() => _FlashcardScreenState();
+  State<FlashcardScreen> createState() => _FlashcardScreenState();
 }
 
-class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProviderStateMixin {
+class _FlashcardScreenState extends State<FlashcardScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _flipController;
-  late Animation<double> _frontRotation;
-  late Animation<double> _backRotation;
+  late Animation<double> _rotation;
 
   List<WordModel> myWordList = [];
   int currentIndex = 0;
@@ -30,20 +30,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _flipController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _frontRotation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: pi / 2), weight: 50),
-      TweenSequenceItem(tween: ConstantTween<double>(pi / 2), weight: 50),
-    ]).animate(_flipController);
-    _backRotation = TweenSequence<double>([
-      TweenSequenceItem(tween: ConstantTween<double>(pi / 2), weight: 50),
-      TweenSequenceItem(tween: Tween(begin: -pi / 2, end: 0.0), weight: 50),
-    ]).animate(_flipController);
     initSequence();
-    _initTts();
   }
 
   @override
@@ -59,12 +46,21 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
     if (autoPronunciation) {
       playPronunciation();
     }
+    _initTts();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _rotation =
+        Tween<double>(begin: 0.0, end: 2*pi).animate(_flipController);
+
   }
 
-  Future<void> _initTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.5);
-    await flutterTts.setVolume(1.0);
+  void _initTts() {
+    flutterTts.setLanguage("en-US");
+    flutterTts.setSpeechRate(0.5);
+    flutterTts.setVolume(1.0);
   }
 
   void initWordList() {
@@ -75,47 +71,46 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
     myWordList.shuffle(Random());
   }
 
-  Future<void> playPronunciation() async {
+  void playPronunciation() {
     pronunciationDebounceTimer?.cancel();
-    pronunciationDebounceTimer = Timer(const Duration(milliseconds: 300), () async {
-      await flutterTts.speak(showFront ? myWordList[currentIndex].vietnamese : myWordList[currentIndex].english);
+    pronunciationDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      flutterTts.speak(showFront ? myWordList[currentIndex].vietnamese : myWordList[currentIndex].english);
     });
   }
 
   void flipCard() {
     if (_flipController.isAnimating) return;
     if (_flipController.isCompleted || _flipController.isDismissed) {
-      _flipController.forward(from: 0.0);
+      _flipController.forward(from: 0.5);
       setState(() {
         showFront = !showFront;
       });
     }
+
   }
 
   void nextCard() {
     if (_flipController.isAnimating) return;
-    _flipController.forward(from: 0.0).then((_) {
-      setState(() {
-        currentIndex = (currentIndex + 1) % myWordList.length;
-        showFront = true;
-      });
-      if (autoPronunciation) {
-        playPronunciation();
-      }
+    setState(() {
+      currentIndex = (currentIndex + 1) % myWordList.length;
+      showFront = true;
     });
+    if (autoPronunciation) {
+      playPronunciation();
+    }
+
   }
 
   void previousCard() {
     if (_flipController.isAnimating) return;
-    _flipController.forward(from: 0.0).then((_) {
-      setState(() {
-        currentIndex = (currentIndex - 1 + myWordList.length) % myWordList.length;
-        showFront = true;
-      });
-      if (autoPronunciation) {
-        playPronunciation();
-      }
+    setState(() {
+      currentIndex =
+          (currentIndex - 1 + myWordList.length) % myWordList.length;
+      showFront = true;
     });
+    if (autoPronunciation) {
+      playPronunciation();
+    }
   }
 
   void shuffleWords() {
@@ -156,70 +151,81 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
       body: currentWord == null
           ? const Center(child: Text('No words available.'))
           : Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Word ${currentIndex + 1} / ${myWordList.length}',
-              style: const TextStyle(fontSize: 16.0),
-            ),
-            const SizedBox(height: 20.0),
-            GestureDetector(
-              onTap: flipCard,
-              child: AnimatedBuilder(
-                animation: _flipController,
-                builder: (context, child) {
-                  final rotationValue = showFront ? _frontRotation.value : _backRotation.value;
-                  return Transform(
-                    transform: Matrix4.identity()..setEntry(3, 2, 0.001)..rotateY(rotationValue),
-                    alignment: Alignment.center,
-                    child: Card(
-                      elevation: 4,
-                      child: Container(
-                        height: 300.0,
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        child: Text(
-                          showFront ? currentWord.vietnamese : currentWord.english,
-                          style: const TextStyle(fontSize: 32.0),
-                        ),
-                      ),
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Word ${currentIndex + 1} / ${myWordList.length}',
+                    style: const TextStyle(fontSize: 16.0),
+                  ),
+                  const SizedBox(height: 20.0),
+                  GestureDetector(
+                    onTap: flipCard,
+                    child: AnimatedBuilder(
+                      animation: _flipController,
+                      builder: (context, child) {
+                        return Transform(
+                          transform: Matrix4.identity()
+                            ..setEntry(3, 2, 0.001)
+                            ..rotateY(_rotation.value),
+                          alignment: Alignment.center,
+                          child: Card(
+                            elevation: 4,
+                            child: Container(
+                              height: 300.0,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: IndexedStack(
+                                index: showFront ? 0 : 1,
+                                alignment: Alignment.center,
+                                children: [
+                                  Text(
+                                    currentWord.vietnamese,
+                                    style: const TextStyle(fontSize: 32.0),
+                                  ),
+                                  Text(
+                                    currentWord.english,
+                                    style: const TextStyle(fontSize: 32.0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        onPressed: previousCard,
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      IconButton(
+                        onPressed: nextCard,
+                        icon: const Icon(Icons.arrow_forward),
+                      ),
+                      IconButton(
+                        onPressed: shuffleWords,
+                        icon: const Icon(Icons.shuffle),
+                      ),
+                      IconButton(
+                        onPressed: toggleAutoMode,
+                        icon: Icon(autoMode ? Icons.pause : Icons.play_arrow),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20.0),
+                  IconButton(
+                    icon: const Icon(Icons.volume_up),
+                    onPressed: playPronunciation,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  onPressed: previousCard,
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                IconButton(
-                  onPressed: nextCard,
-                  icon: const Icon(Icons.arrow_forward),
-                ),
-                IconButton(
-                  onPressed: shuffleWords,
-                  icon: const Icon(Icons.shuffle),
-                ),
-                IconButton(
-                  onPressed: toggleAutoMode,
-                  icon: Icon(autoMode ? Icons.pause : Icons.play_arrow),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20.0),
-            IconButton(
-              icon: const Icon(Icons.volume_up),
-              onPressed: playPronunciation,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
