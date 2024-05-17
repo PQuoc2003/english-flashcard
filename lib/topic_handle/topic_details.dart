@@ -60,7 +60,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     });
   }
 
-  Widget listItems(BuildContext context, int index, WordModel wordModel) {
+  Widget listItems(
+      BuildContext context, int index, WordModel wordModel, String wordId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -99,8 +100,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
             itemCount: wordList.length,
             itemBuilder: (context, index) {
               WordModel wordModel = wordList[index].data();
-              // String docId = wordList[index].id;
-              return listItems(context, index, wordModel);
+              String docId = wordList[index].id;
+              return listItems(context, index, wordModel, docId);
             },
           );
         },
@@ -261,7 +262,6 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                       child: const Text('Add')),
                   TextButton(
                     onPressed: () async {
-
                       final navigator = Navigator.of(context);
 
                       FilePickerResult? result =
@@ -272,7 +272,6 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
 
                       if (result != null) {
                         Uint8List? fileBytes = result.files.single.bytes;
-
 
                         if (fileBytes != null) {
                           try {
@@ -293,18 +292,16 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                                   topicId: topicId,
                                 );
 
-                               if(context.mounted){
-                                 wordRepository.addWord(context, wordModel);
-                               }
+                                if (context.mounted) {
+                                  wordRepository.addWord(context, wordModel);
+                                }
                               }
                             }
-
                           } catch (e) {
                             // print('Error reading file: $e');
                           }
                         }
-                      } else {
-                      }
+                      } else {}
 
                       navigator.pop();
 
