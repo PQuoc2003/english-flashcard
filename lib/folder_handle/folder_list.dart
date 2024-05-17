@@ -51,7 +51,7 @@ class _FolderListPageState extends State<FolderListPage> {
         trailing: IconButton(
           icon: const Icon(Icons.delete),
           onPressed: () {
-            // Add logic to delete the folder
+            folderRepository.deleteFolder(context, folderId);
           },
         ),
       ),

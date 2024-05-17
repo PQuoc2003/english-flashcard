@@ -44,4 +44,23 @@ class WordRepository {
       );
     });
   }
+
+  Future<void> deleteWord(BuildContext context, String wordId) async {
+    await _wordRef.doc(wordId).delete().then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Word deleted successfully!'),
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed when deleting word'),
+        ),
+      );
+    });
+  }
+
+
+
 }

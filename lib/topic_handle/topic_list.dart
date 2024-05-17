@@ -206,23 +206,25 @@ class _TopicListPageState extends State<TopicListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: widget.folderModel != null
-            ? Text("${widget.folderModel?.folderName}")
-            : const Text("Topic List"),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _createTopic,
-          child: const Icon(CupertinoIcons.add),
+    return Scaffold(
+      body: CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: widget.folderModel != null
+              ? Text("${widget.folderModel?.folderName}")
+              : const Text("Topic List"),
+          trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _createTopic,
+            child: const Icon(CupertinoIcons.add),
+          ),
         ),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _topicBox(widget.mode),
-            ],
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _topicBox(widget.mode),
+              ],
+            ),
           ),
         ),
       ),

@@ -30,6 +30,7 @@ class FolderRepository {
     _folderRef.doc(docId).update(folderModel.toJson());
   }
 
+
   Future<void> createFolder(BuildContext context, FolderModel folderModel) async {
     await _folderRef.add(folderModel).then((value) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -46,4 +47,22 @@ class FolderRepository {
     });
 
   }
+
+  Future<void> deleteFolder(BuildContext context, String folderId) async {
+    await _folderRef.doc(folderId).delete().then((value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Folder deleted successfully!'),
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed when deleting folder'),
+        ),
+      );
+    });
+  }
+
+
 }
