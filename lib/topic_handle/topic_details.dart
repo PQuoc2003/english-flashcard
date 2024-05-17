@@ -8,6 +8,9 @@ import 'package:english_flashcard/flash_card/flash_card_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:csv/csv.dart';
 
 class TopicDetailsPage extends StatefulWidget {
   final TopicModel topicModel;
@@ -102,6 +105,44 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
         },
       ),
     );
+  }
+
+  void importWordsFromCSV(BuildContext context, String topicId) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowedExtensions: ['csv'],
+    );
+    if (result != null) {
+      // Extract file path
+      String? filePath = result.files.single.path;
+
+      if (filePath != null) {
+        // Read CSV file
+        File file = File(filePath);
+        String csvContent = await file.readAsString();
+
+        // Parse CSV content
+        List<List<dynamic>> csvList =
+            const CsvToListConverter().convert(csvContent);
+
+        // Iterate through CSV rows and add words to repository
+        for (var csvRow in csvList) {
+          String english = csvRow[0].toString();
+          String vietnamese = csvRow[1].toString();
+
+          WordModel wordModel = WordModel(
+            english: english,
+            vietnamese: vietnamese,
+            isLearned: false,
+            topicId: topicId,
+          );
+
+          // Save the word to the repository
+          wordRepository.addWord(context, wordModel);
+        }
+      }
+    } else {
+      // User canceled the file picker
+    }
   }
 
   Widget _navigationButtons() {
@@ -252,7 +293,13 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                           navigator.pop();
                         }
                       },
-                      child: const Text('Add'))
+                      child: const Text('Add')),
+                  TextButton(
+                    onPressed: () {
+                      importWordsFromCSV(context, topicId);
+                    },
+                    child: const Text('Import from CSV'),
+                  ),
                 ],
                 content: AlertDialog(
                   title: const Text('Add new word'),
