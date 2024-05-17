@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:english_flashcard/models/topic_model.dart';
 import 'package:english_flashcard/models/word_model.dart';
 import 'package:english_flashcard/quiz/quiz_screen.dart';
@@ -8,9 +11,7 @@ import 'package:english_flashcard/flash_card/flash_card_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:csv/csv.dart';
 
 class TopicDetailsPage extends StatefulWidget {
   final TopicModel topicModel;
@@ -105,44 +106,6 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
         },
       ),
     );
-  }
-
-  void importWordsFromCSV(BuildContext context, String topicId) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowedExtensions: ['csv'],
-    );
-    if (result != null) {
-      // Extract file path
-      String? filePath = result.files.single.path;
-
-      if (filePath != null) {
-        // Read CSV file
-        File file = File(filePath);
-        String csvContent = await file.readAsString();
-
-        // Parse CSV content
-        List<List<dynamic>> csvList =
-            const CsvToListConverter().convert(csvContent);
-
-        // Iterate through CSV rows and add words to repository
-        for (var csvRow in csvList) {
-          String english = csvRow[0].toString();
-          String vietnamese = csvRow[1].toString();
-
-          WordModel wordModel = WordModel(
-            english: english,
-            vietnamese: vietnamese,
-            isLearned: false,
-            topicId: topicId,
-          );
-
-          // Save the word to the repository
-          wordRepository.addWord(context, wordModel);
-        }
-      }
-    } else {
-      // User canceled the file picker
-    }
   }
 
   Widget _navigationButtons() {
@@ -277,16 +240,18 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                   TextButton(
                       onPressed: () async {
                         final navigator = Navigator.of(context);
+
                         if (_key.currentState?.validate() ?? false) {
                           String english = _ctlEnglish.text.toString();
                           String vietnamese = _ctlVietnamese.text.toString();
                           bool isLearned = false;
 
                           WordModel wordModel = WordModel(
-                              english: english,
-                              vietnamese: vietnamese,
-                              isLearned: isLearned,
-                              topicId: topicId);
+                            english: english,
+                            vietnamese: vietnamese,
+                            isLearned: isLearned,
+                            topicId: topicId,
+                          );
 
                           wordRepository.addWord(context, wordModel);
 
@@ -295,8 +260,55 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                       },
                       child: const Text('Add')),
                   TextButton(
-                    onPressed: () {
-                      importWordsFromCSV(context, topicId);
+                    onPressed: () async {
+
+                      final navigator = Navigator.of(context);
+
+                      FilePickerResult? result =
+                          await FilePicker.platform.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: ['csv'],
+                      );
+
+                      if (result != null) {
+                        Uint8List? fileBytes = result.files.single.bytes;
+
+
+                        if (fileBytes != null) {
+                          try {
+                            String csvContent = utf8.decode(fileBytes);
+
+                            List<String> lines = csvContent.split('\n');
+
+                            for (String line in lines) {
+                              List<String> csvRow = line.split(',');
+                              if (csvRow.length == 2) {
+                                String english = csvRow[0].trim();
+                                String vietnamese = csvRow[1].trim();
+
+                                WordModel wordModel = WordModel(
+                                  english: english,
+                                  vietnamese: vietnamese,
+                                  isLearned: false,
+                                  topicId: topicId,
+                                );
+
+                               if(context.mounted){
+                                 wordRepository.addWord(context, wordModel);
+                               }
+                              }
+                            }
+
+                          } catch (e) {
+                            // print('Error reading file: $e');
+                          }
+                        }
+                      } else {
+                      }
+
+                      navigator.pop();
+
+                      // getFileByFilePicker(context, topicId);
                     },
                     child: const Text('Import from CSV'),
                   ),
