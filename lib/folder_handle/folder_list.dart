@@ -23,8 +23,7 @@ class _FolderListPageState extends State<FolderListPage> {
 // Initialize filter index
   }
 
-  Widget listItems(BuildContext context, int index, FolderModel folderModel,
-      String folderId) {
+  Widget listItems(BuildContext context, int index, FolderModel folderModel, String folderId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -48,15 +47,35 @@ class _FolderListPageState extends State<FolderListPage> {
             ),
           );
         },
-        trailing: IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () {
-            folderRepository.deleteFolder(context, folderId);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateFolderPage(
+                      // folderModel: folderModel,
+                      // folderId: folderId,
+                    ),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                folderRepository.deleteFolder(context, folderId);
+              },
+            ),
+          ],
         ),
       ),
     );
   }
+
 
   void _createFolder() {
     Navigator.push(

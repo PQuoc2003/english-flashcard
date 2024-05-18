@@ -60,11 +60,22 @@ class _TopicListPageState extends State<TopicListPage> {
             ),
           );
         },
-        trailing: IconButton(
-          icon: const Icon(CupertinoIcons.trash),
-          onPressed: () {
-            topicRepository.deleteTopic(context, topicId);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(CupertinoIcons.pencil),
+              onPressed: () {
+                _createTopic();
+              },
+            ),
+            IconButton(
+              icon: const Icon(CupertinoIcons.trash),
+              onPressed: () {
+                topicRepository.deleteTopic(context, topicId);
+              },
+            ),
+          ],
         ),
       ),
     );

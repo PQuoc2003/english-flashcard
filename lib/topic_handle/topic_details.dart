@@ -60,8 +60,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     });
   }
 
-  Widget listItems(
-      BuildContext context, int index, WordModel wordModel, String wordId) {
+  Widget listItems(BuildContext context, int index, WordModel wordModel, String wordId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -71,16 +70,27 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
         leading: Text(index.toString()),
         title: Text(wordModel.english),
         subtitle: Text(wordModel.vietnamese),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Topic ID: $index'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(CupertinoIcons.pencil),
+              onPressed: () {
+                // _showWordForm(wordModel, wordId);
+              },
             ),
-          );
-        },
+            IconButton(
+              icon: const Icon(CupertinoIcons.trash),
+              onPressed: () {
+                // _deleteWord(context, wordId);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _topicBox(String topicId) {
     return SizedBox(
@@ -280,7 +290,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                             List<String> lines = csvContent.split('\n');
 
                             for (String line in lines) {
-                              List<String> csvRow = line.split(',');
+                              List<String> csvRow = line.split(';');
                               if (csvRow.length == 2) {
                                 String english = csvRow[0].trim();
                                 String vietnamese = csvRow[1].trim();
