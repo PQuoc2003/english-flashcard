@@ -12,10 +12,11 @@ class SearchHomepage extends StatefulWidget {
 }
 
 class _SearchHomepageState extends State<SearchHomepage> {
-
   final TopicRepository topicRepository = TopicRepository();
 
-  String query = "Third";
+  String query = "";
+
+  final _ctlSearch = TextEditingController();
 
   Widget listItems(
       BuildContext context, int index, TopicModel topicModel, String topicId) {
@@ -61,7 +62,7 @@ class _SearchHomepageState extends State<SearchHomepage> {
           List topicList = snapshots.data?.docs ?? [];
           if (topicList.isEmpty) {
             return const Center(
-              child: Text("No topics"),
+              child: Text("No topics match your search"),
             );
           }
 
@@ -78,7 +79,6 @@ class _SearchHomepageState extends State<SearchHomepage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,14 +87,40 @@ class _SearchHomepageState extends State<SearchHomepage> {
           child: Text("Search"),
         ),
       ),
-      body: SingleChildScrollView(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-
-            query != "" ?_topicBox(query) : Container(),
-
-        ],
-      ),),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(20),
+              child: TextFormField(
+                controller: _ctlSearch,
+                decoration: const InputDecoration(
+                  labelText: "Search",
+                  hintText: "Search the topic you want to learn",
+                  border: OutlineInputBorder(),
+                ),
+                textInputAction: TextInputAction.done,
+                validator: (v) {
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            CupertinoButton.filled(
+              onPressed: () {
+                setState(() {
+                  query = _ctlSearch.text.toString();
+                });
+              },
+              child: const Text("Search"),
+            ),
+            query != "" ? _topicBox(query) : Container(),
+          ],
+        ),
+      ),
     );
   }
 }

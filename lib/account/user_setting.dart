@@ -36,7 +36,9 @@ class UserSettingsState extends State<UserSettings>
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('User Settings'),
+          title: const Center(
+            child: Text('User Settings'),
+          ),
           actions: [
             PopupMenuButton<String>(
               onSelected: (value) {
@@ -65,7 +67,6 @@ class UserSettingsState extends State<UserSettings>
         body: const TabBarView(
           children: [
             ChangePasswordPage(),
-
             ChangeProfileScreen(),
           ],
         ),
