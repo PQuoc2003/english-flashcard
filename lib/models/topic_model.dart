@@ -43,7 +43,7 @@ class TopicModel {
           uid: json['uid']! as String,
           currLearningIndex: json['currLearningIndex']! as int,
           numberOfWord: json['numberOfWord']! as int,
-          isPublic: json['isPublic'] != null ? json['isPublic'] as bool : true ,
+          isPublic: json['isPublic'] != null ? json['isPublic'] as bool : false ,
         );
 
   TopicModel copyWith({

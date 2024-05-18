@@ -84,6 +84,7 @@ class _TopicListPageState extends State<TopicListPage> {
 
   Future<void> _editTopic(TopicModel topicModel, String topicId) async {
     final user = FirebaseAuth.instance.currentUser;
+    bool myPublic = topicModel.isPublic;
 
     showDialog(
       context: context,
@@ -94,39 +95,56 @@ class _TopicListPageState extends State<TopicListPage> {
         return Material(
           child: CupertinoAlertDialog(
             title: const Text('Edit Topic'),
-            content: Form(
-              key: _key,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _cltTitleTopic,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      icon: Icon(CupertinoIcons.textformat),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a value';
-                      }
-                      return null;
-                    },
+            content: StatefulBuilder(
+              builder: (BuildContext context,
+                  void Function(void Function()) setState) {
+                return Form(
+                  key: _key,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _cltTitleTopic,
+                        decoration: const InputDecoration(
+                          labelText: 'Title',
+                          icon: Icon(CupertinoIcons.textformat),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _cltDescriptionTopic,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          icon: Icon(CupertinoIcons.textformat_size),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      CheckboxListTile(
+                        title: const Text('Public : '),
+                        value: myPublic,
+                        onChanged: (value) {
+                          setState(() {
+                            myPublic = !myPublic;
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    controller: _cltDescriptionTopic,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      icon: Icon(CupertinoIcons.textformat_size),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a value';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
+                );
+              },
             ),
             actions: [
               CupertinoDialogAction(
@@ -158,7 +176,7 @@ class _TopicListPageState extends State<TopicListPage> {
                       uid: user?.uid ?? "1",
                       currLearningIndex: currLearningIndex,
                       numberOfWord: numberOfWord,
-                      isPublic: true,
+                      isPublic: myPublic,
                     );
 
                     topicRepository.updateTopic(topicId, updateTopic);
@@ -177,6 +195,8 @@ class _TopicListPageState extends State<TopicListPage> {
 
   Future<void> _createTopic() async {
     final user = FirebaseAuth.instance.currentUser;
+    _cltTitleTopic.clear();
+    _cltDescriptionTopic.clear();
 
     showDialog(
       context: context,
@@ -249,7 +269,7 @@ class _TopicListPageState extends State<TopicListPage> {
                       uid: user?.uid ?? "1",
                       currLearningIndex: currLearningIndex,
                       numberOfWord: numberOfWord,
-                      isPublic: true,
+                      isPublic: false,
                     );
 
                     await topicRepository.createTopic(context, topicModel);
