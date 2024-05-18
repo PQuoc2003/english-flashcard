@@ -1,4 +1,5 @@
 import 'package:english_flashcard/folder_handle/create_folder_form.dart';
+import 'package:english_flashcard/folder_handle/edit_folder.dart';
 import 'package:english_flashcard/models/folder_model.dart';
 import 'package:english_flashcard/repository/folder_repo.dart';
 import 'package:english_flashcard/topic_handle/topic_list.dart';
@@ -16,14 +17,14 @@ class FolderListPage extends StatefulWidget {
 class _FolderListPageState extends State<FolderListPage> {
   final FolderRepository folderRepository = FolderRepository();
 
-
   @override
   void initState() {
     super.initState();
 // Initialize filter index
   }
 
-  Widget listItems(BuildContext context, int index, FolderModel folderModel, String folderId) {
+  Widget listItems(BuildContext context, int index, FolderModel folderModel,
+      String folderId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -56,10 +57,8 @@ class _FolderListPageState extends State<FolderListPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CreateFolderPage(
-                      // folderModel: folderModel,
-                      // folderId: folderId,
-                    ),
+                    builder: (context) => EditFolderPage(
+                        folderModel: folderModel, folderId: folderId),
                   ),
                 );
               },
@@ -75,7 +74,6 @@ class _FolderListPageState extends State<FolderListPage> {
       ),
     );
   }
-
 
   void _createFolder() {
     Navigator.push(

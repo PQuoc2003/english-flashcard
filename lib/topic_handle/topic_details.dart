@@ -60,7 +60,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     });
   }
 
-  Widget listItems(BuildContext context, int index, WordModel wordModel, String wordId) {
+  Widget listItems(
+      BuildContext context, int index, WordModel wordModel, String wordId) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
@@ -76,13 +77,89 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
             IconButton(
               icon: const Icon(CupertinoIcons.pencil),
               onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      _ctlEnglish.text = wordModel.english;
+                      _ctlVietnamese.text = wordModel.vietnamese;
+                      return AlertDialog(
+                        title: const Text('Modify Word'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                              onPressed: () async {
+                                final navigator = Navigator.of(context);
+
+                                if (_key.currentState?.validate() ?? false) {
+                                  String english = _ctlEnglish.text.toString();
+                                  String vietnamese =
+                                      _ctlVietnamese.text.toString();
+                                  bool isLearned = false;
+
+                                  WordModel updateWord = WordModel(
+                                    english: english,
+                                    vietnamese: vietnamese,
+                                    isLearned: isLearned,
+                                    topicId: topicId,
+                                  );
+
+                                  wordRepository.updateWord(wordId, updateWord);
+
+                                  navigator.pop();
+                                }
+                              },
+                              child: const Text('Update')),
+                        ],
+                        content: AlertDialog(
+                          title: const Text('Edit word'),
+                          content: Form(
+                            key: _key,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextFormField(
+                                  controller: _ctlEnglish,
+                                  decoration: const InputDecoration(
+                                    labelText: 'English',
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a value';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                TextFormField(
+                                  controller: _ctlVietnamese,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Vietnamese',
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a value';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+
                 // _showWordForm(wordModel, wordId);
               },
             ),
             IconButton(
               icon: const Icon(CupertinoIcons.trash),
               onPressed: () {
-                // _deleteWord(context, wordId);
+                wordRepository.deleteWord(context, wordId);
               },
             ),
           ],
@@ -90,7 +167,6 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
       ),
     );
   }
-
 
   Widget _topicBox(String topicId) {
     return SizedBox(
@@ -290,7 +366,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                             List<String> lines = csvContent.split('\n');
 
                             for (String line in lines) {
-                              List<String> csvRow = line.split(';');
+                              List<String> csvRow = line.split(',');
                               if (csvRow.length == 2) {
                                 String english = csvRow[0].trim();
                                 String vietnamese = csvRow[1].trim();
