@@ -82,53 +82,69 @@ class _TopicListPageState extends State<TopicListPage> {
     );
   }
 
-
   Future<void> _editTopic(TopicModel topicModel, String topicId) async {
     final user = FirebaseAuth.instance.currentUser;
+    bool myPublic = topicModel.isPublic;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-
         _cltTitleTopic.text = topicModel.topicName;
         _cltDescriptionTopic.text = topicModel.topicDescription;
 
         return Material(
           child: CupertinoAlertDialog(
             title: const Text('Edit Topic'),
-            content: Form(
-              key: _key,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _cltTitleTopic,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      icon: Icon(CupertinoIcons.textformat),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a value';
-                      }
-                      return null;
-                    },
+            content: StatefulBuilder(
+              builder: (BuildContext context,
+                  void Function(void Function()) setState) {
+                return Form(
+                  key: _key,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _cltTitleTopic,
+                        decoration: const InputDecoration(
+                          labelText: 'Title',
+                          icon: Icon(CupertinoIcons.textformat),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _cltDescriptionTopic,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          icon: Icon(CupertinoIcons.textformat_size),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      CheckboxListTile(
+                        title: const Text('Public : '),
+                        value: myPublic,
+                        onChanged: (value) {
+                          setState(() {
+                            myPublic = !myPublic;
+                          });
+                        },
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    controller: _cltDescriptionTopic,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      icon: Icon(CupertinoIcons.textformat_size),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a value';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
+                );
+              },
             ),
             actions: [
               CupertinoDialogAction(
@@ -146,7 +162,7 @@ class _TopicListPageState extends State<TopicListPage> {
 
                     String topicName = _cltTitleTopic.text.toString();
                     String topicDescription =
-                    _cltDescriptionTopic.text.toString();
+                        _cltDescriptionTopic.text.toString();
                     Timestamp createdDate = Timestamp.now();
                     String folderId = widget.folderId;
                     int currLearningIndex = 0;
@@ -160,12 +176,12 @@ class _TopicListPageState extends State<TopicListPage> {
                       uid: user?.uid ?? "1",
                       currLearningIndex: currLearningIndex,
                       numberOfWord: numberOfWord,
+                      isPublic: myPublic,
                     );
 
                     topicRepository.updateTopic(topicId, updateTopic);
 
                     navigator.pop();
-
                   }
                 },
                 child: const Text('Update'),
@@ -179,6 +195,8 @@ class _TopicListPageState extends State<TopicListPage> {
 
   Future<void> _createTopic() async {
     final user = FirebaseAuth.instance.currentUser;
+    _cltTitleTopic.clear();
+    _cltDescriptionTopic.clear();
 
     showDialog(
       context: context,
@@ -251,6 +269,7 @@ class _TopicListPageState extends State<TopicListPage> {
                       uid: user?.uid ?? "1",
                       currLearningIndex: currLearningIndex,
                       numberOfWord: numberOfWord,
+                      isPublic: false,
                     );
 
                     await topicRepository.createTopic(context, topicModel);

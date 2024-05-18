@@ -8,6 +8,7 @@ class TopicModel {
   String uid;
   int currLearningIndex;
   int numberOfWord;
+  bool isPublic;
 
   TopicModel({
     required this.topicName,
@@ -17,6 +18,7 @@ class TopicModel {
     required this.uid,
     required this.currLearningIndex,
     required this.numberOfWord,
+    required this.isPublic,
   });
 
   toJson() {
@@ -28,6 +30,7 @@ class TopicModel {
       "uid": uid,
       "currLearningIndex": currLearningIndex,
       "numberOfWord": numberOfWord,
+      "isPublic": isPublic,
     };
   }
 
@@ -40,6 +43,7 @@ class TopicModel {
           uid: json['uid']! as String,
           currLearningIndex: json['currLearningIndex']! as int,
           numberOfWord: json['numberOfWord']! as int,
+          isPublic: json['isPublic'] != null ? json['isPublic'] as bool : false ,
         );
 
   TopicModel copyWith({
@@ -50,6 +54,7 @@ class TopicModel {
     String? uid,
     int? currLearningIndex,
     int? numberOfWord,
+    bool? isPublic,
   }) {
     return TopicModel(
       topicName: topicName ?? this.topicName,
@@ -59,6 +64,7 @@ class TopicModel {
       uid: uid ?? this.uid,
       currLearningIndex: currLearningIndex ?? this.currLearningIndex,
       numberOfWord: numberOfWord ?? this.numberOfWord,
+      isPublic: isPublic ?? this.isPublic,
     );
   }
 }

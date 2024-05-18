@@ -31,7 +31,9 @@ class LibraryHomePageState extends State<LibraryHomePage>
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('User Settings'),
+          title: const Center(
+            child: Text('Library'),
+          ),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Topic'),
@@ -41,7 +43,7 @@ class LibraryHomePageState extends State<LibraryHomePage>
         ),
         body: const TabBarView(
           children: [
-            TopicListPage(mode: 0, folderId: "no"),
+            TopicListPage(mode: 0, folderId: ""),
             FolderListPage(),
           ],
         ),
