@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class TopicDetailsPage extends StatefulWidget {
   final TopicModel topicModel;
@@ -36,6 +37,8 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   final _ctlEnglish = TextEditingController();
   final _ctlVietnamese = TextEditingController();
 
+  FlutterTts flutterTts = FlutterTts();
+
   String topicId = "";
 
   List wordList = [];
@@ -44,13 +47,21 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   void initState() {
     super.initState();
     fetchTopicId();
+    _initTts();
   }
 
   @override
   void dispose() {
     _ctlVietnamese.dispose();
     _ctlEnglish.dispose();
+    flutterTts.stop();
     super.dispose();
+  }
+
+  void _initTts() {
+    flutterTts.setLanguage("en-US");
+    flutterTts.setSpeechRate(0.5);
+    flutterTts.setVolume(1.0);
   }
 
   void fetchTopicId() async {
@@ -64,6 +75,10 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
     } else {
       topicId = widget.topicId!;
     }
+  }
+
+  void playPronunciation(String text) {
+    flutterTts.speak(text);
   }
 
   Widget listItems(
@@ -104,7 +119,7 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                                 if (_key.currentState?.validate() ?? false) {
                                   String english = _ctlEnglish.text.toString();
                                   String vietnamese =
-                                      _ctlVietnamese.text.toString();
+                                  _ctlVietnamese.text.toString();
                                   bool isLearned = false;
 
                                   WordModel updateWord = WordModel(
@@ -168,11 +183,18 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
                 wordRepository.deleteWord(context, wordId);
               },
             ),
+            IconButton(
+              icon: const Icon(Icons.volume_up),
+              onPressed: () {
+                playPronunciation(wordModel.english);
+              },
+            ),
           ],
         ),
       ),
     );
   }
+
 
   Widget _topicBox(String topicId) {
     return SizedBox(

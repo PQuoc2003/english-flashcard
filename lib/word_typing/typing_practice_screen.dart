@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:english_flashcard/models/word_model.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class TypingPracticeScreen extends StatefulWidget {
   final String topicId;
@@ -26,6 +27,8 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
   late TextEditingController _controller;
   int correctCount = 0;
   int totalCount = 0;
+  final FlutterTts flutterTts = FlutterTts();
+  bool submitted = false;
 
   @override
   void initState() {
@@ -42,20 +45,38 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
     myWordList.shuffle();
   }
 
+  Future<void> speak(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.speak(text);
+  }
+
   void nextWord() {
-    if (index == myWordList.length - 1) {
-      showScore();
+    if (!submitted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please submit your answer first.'),
+        ),
+      );
       return;
     }
-    setState(() {
-      index++;
-      isCorrect = false;
-      userInput = null;
-      correctAnswer = null;
-      showResult = false;
-      _controller.clear();
-    });
+    else {
+      if (index == myWordList.length - 1) {
+        showScore();
+        return;
+      }
+      setState(() {
+        index++;
+        isCorrect = false;
+        userInput = null;
+        correctAnswer = null;
+        showResult = false;
+        _controller.clear();
+        submitted = false;
+      });
+    }
   }
+
 
   void checkAnswer(String input) {
     final currentWord = myWordList[index];
@@ -67,6 +88,15 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
   }
 
   void submitAnswer() {
+    if (_controller.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please input your answer.'),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       showResult = true;
       userInput = _controller.text;
@@ -74,8 +104,10 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
         correctCount++;
       }
       totalCount++;
+      submitted = true;
     });
   }
+
 
   void showScore() {
     showDialog(
@@ -126,6 +158,18 @@ class _TypingPracticeScreenState extends State<TypingPracticeScreen> {
             Text(
               currentWord.vietnamese,
               style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    speak(currentWord.english);
+                  },
+                  child: const Icon(Icons.volume_up),
+                ),
+              ],
             ),
             const SizedBox(height: 20.0),
             CupertinoTextField(

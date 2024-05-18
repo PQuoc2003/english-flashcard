@@ -188,14 +188,14 @@ class _QuizScreenState extends State<QuizScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               QuestionWidget( // Display the current question
                 question: questionList[index].question,
                 indexAction: index,
                 totalQuestion: questionList.length,
               ),
               const Divider(color: Colors.white),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               for (int i = 0; i < questionList[index].options.length; i++)
                 GestureDetector(
                   onTap: () => checkAnswerAndUpdate(

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class QuestionWidget extends StatefulWidget {
   const QuestionWidget({
-    Key? key,
+    super.key,
     required this.question,
     required this.indexAction,
     required this.totalQuestion,
-  }) : super(key: key);
+  });
 
   final String question;
   final int indexAction;
@@ -19,6 +20,7 @@ class QuestionWidget extends StatefulWidget {
 class _QuestionWidgetState extends State<QuestionWidget> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
+  final FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
@@ -31,6 +33,12 @@ class _QuestionWidgetState extends State<QuestionWidget> with SingleTickerProvid
     _animationController.forward();
   }
 
+  Future<void> speak(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.speak(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -38,10 +46,27 @@ class _QuestionWidgetState extends State<QuestionWidget> with SingleTickerProvid
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Text(
-          "Question ${widget.indexAction + 1} of ${widget.totalQuestion}: ${widget.question}",
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 24),
+        child: Column(
+          children: [
+            Text(
+              "Question ${widget.indexAction + 1} of ${widget.totalQuestion}:",
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              widget.question,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                speak(widget.question);
+              },
+              child: const Icon(Icons.volume_up),
+            ),
+          ],
         ),
       ),
     );

@@ -42,37 +42,47 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.all(10),
-            child: Center(
-              child: TextFormField(
-
-                controller: _controller,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (email) {
-                  if (email != null && !EmailValidator.validate(email)) {
-                    return "Enter valid email";
-                  }
-                  return null;
-                },
+      appBar: AppBar(
+        title: const Text('Forgot Password'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextFormField(
+              controller: _controller,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
               ),
+              validator: (email) {
+                if (email != null && email.isEmpty) {
+                  return "Email cannot be empty";
+                } else if (email != null && !EmailValidator.validate(email)) {
+                  return "Enter valid email";
+                }
+                return null;
+              },
             ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          ElevatedButton(
-
-            onPressed: () {
-              email = _controller.text;
-              resetPassword(email, context);
-            },
-            child: const Text("Hello"),
-          ),
-        ],
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final email = _controller.text;
+                if (EmailValidator.validate(email)) {
+                  resetPassword(email, context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      snackBarMessage("Please enter a valid email"));
+                }
+              },
+              child: const Text("Reset Password"),
+            ),
+          ],
+        ),
       ),
     );
   }
