@@ -1,4 +1,5 @@
 import 'package:english_flashcard/folder_handle/create_folder_form.dart';
+import 'package:english_flashcard/folder_handle/edit_folder.dart';
 import 'package:english_flashcard/models/folder_model.dart';
 import 'package:english_flashcard/repository/folder_repo.dart';
 import 'package:english_flashcard/topic_handle/topic_list.dart';
@@ -15,7 +16,6 @@ class FolderListPage extends StatefulWidget {
 
 class _FolderListPageState extends State<FolderListPage> {
   final FolderRepository folderRepository = FolderRepository();
-
 
   @override
   void initState() {
@@ -48,11 +48,28 @@ class _FolderListPageState extends State<FolderListPage> {
             ),
           );
         },
-        trailing: IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () {
-            folderRepository.deleteFolder(context, folderId);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditFolderPage(
+                        folderModel: folderModel, folderId: folderId),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                folderRepository.deleteFolder(context, folderId);
+              },
+            ),
+          ],
         ),
       ),
     );

@@ -60,13 +60,120 @@ class _TopicListPageState extends State<TopicListPage> {
             ),
           );
         },
-        trailing: IconButton(
-          icon: const Icon(CupertinoIcons.trash),
-          onPressed: () {
-            topicRepository.deleteTopic(context, topicId);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(CupertinoIcons.pencil),
+              onPressed: () {
+                // _createTopic();
+                _editTopic(topicModel, topicId);
+              },
+            ),
+            IconButton(
+              icon: const Icon(CupertinoIcons.trash),
+              onPressed: () {
+                topicRepository.deleteTopic(context, topicId);
+              },
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+
+  Future<void> _editTopic(TopicModel topicModel, String topicId) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+
+        _cltTitleTopic.text = topicModel.topicName;
+        _cltDescriptionTopic.text = topicModel.topicDescription;
+
+        return Material(
+          child: CupertinoAlertDialog(
+            title: const Text('Edit Topic'),
+            content: Form(
+              key: _key,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _cltTitleTopic,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      icon: Icon(CupertinoIcons.textformat),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a value';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _cltDescriptionTopic,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      icon: Icon(CupertinoIcons.textformat_size),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a value';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              CupertinoDialogAction(
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
+
+                  if (_key.currentState?.validate() ?? false) {
+                    setState(() {});
+
+                    String topicName = _cltTitleTopic.text.toString();
+                    String topicDescription =
+                    _cltDescriptionTopic.text.toString();
+                    Timestamp createdDate = Timestamp.now();
+                    String folderId = widget.folderId;
+                    int currLearningIndex = 0;
+                    int numberOfWord = 0;
+
+                    TopicModel updateTopic = TopicModel(
+                      topicName: topicName,
+                      topicDescription: topicDescription,
+                      createdDate: createdDate,
+                      folderId: folderId,
+                      uid: user?.uid ?? "1",
+                      currLearningIndex: currLearningIndex,
+                      numberOfWord: numberOfWord,
+                    );
+
+                    topicRepository.updateTopic(topicId, updateTopic);
+
+                    navigator.pop();
+
+                  }
+                },
+                child: const Text('Update'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
