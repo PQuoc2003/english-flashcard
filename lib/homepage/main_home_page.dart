@@ -14,7 +14,7 @@ class _MainHomePageState extends State<MainHomePage> {
   int _currIndex = 0;
 
   List<Widget> widgetList = const [
-    RecentHomepage(),
+    SearchHomepage(),
     LibraryHomePage(),
     UserSettings(),
   ];

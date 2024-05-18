@@ -56,6 +56,13 @@ class TopicRepository {
     return _topicRef.doc(topicId).snapshots();
   }
 
+  Stream<QuerySnapshot> getPublicTopicByTopicName(String topicName) {
+    return _topicRef
+        .where('topicName', isEqualTo: topicName)
+        .where("isPublic", isEqualTo: true)
+        .snapshots();
+  }
+
   void updateTopic(String docId, TopicModel topicModel) {
     _topicRef.doc(docId).update(topicModel.toJson());
   }

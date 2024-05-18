@@ -15,10 +15,12 @@ import 'package:file_picker/file_picker.dart';
 
 class TopicDetailsPage extends StatefulWidget {
   final TopicModel topicModel;
+  final String? topicId;
 
   const TopicDetailsPage({
     super.key,
     required this.topicModel,
+    this.topicId,
   });
 
   @override
@@ -52,12 +54,16 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
   }
 
   void fetchTopicId() async {
-    final user = FirebaseAuth.instance.currentUser;
-    String topicId = await topicRepository.getTopicIdByUidAndCreatedDate(
-        user?.uid ?? "1", widget.topicModel.createdDate);
-    setState(() {
-      this.topicId = topicId;
-    });
+    if (widget.topicId == null) {
+      final user = FirebaseAuth.instance.currentUser;
+      String topicId = await topicRepository.getTopicIdByUidAndCreatedDate(
+          user?.uid ?? "1", widget.topicModel.createdDate);
+      setState(() {
+        this.topicId = topicId;
+      });
+    } else {
+      topicId = widget.topicId!;
+    }
   }
 
   Widget listItems(
@@ -292,6 +298,9 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid ?? "1";
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -307,135 +316,139 @@ class _TopicDetailsPageState extends State<TopicDetailsPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              _ctlEnglish.clear();
-              _ctlVietnamese.clear();
-              return AlertDialog(
-                title: const Text('Add new word'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                      onPressed: () async {
-                        final navigator = Navigator.of(context);
+      floatingActionButton: widget.topicModel.uid != uid
+          ? Container()
+          : FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    _ctlEnglish.clear();
+                    _ctlVietnamese.clear();
+                    return AlertDialog(
+                      title: const Text('Add new word'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                            onPressed: () async {
+                              final navigator = Navigator.of(context);
 
-                        if (_key.currentState?.validate() ?? false) {
-                          String english = _ctlEnglish.text.toString();
-                          String vietnamese = _ctlVietnamese.text.toString();
-                          bool isLearned = false;
-
-                          WordModel wordModel = WordModel(
-                            english: english,
-                            vietnamese: vietnamese,
-                            isLearned: isLearned,
-                            topicId: topicId,
-                          );
-
-                          wordRepository.addWord(context, wordModel);
-
-                          navigator.pop();
-                        }
-                      },
-                      child: const Text('Add')),
-                  TextButton(
-                    onPressed: () async {
-                      final navigator = Navigator.of(context);
-
-                      FilePickerResult? result =
-                          await FilePicker.platform.pickFiles(
-                        type: FileType.custom,
-                        allowedExtensions: ['csv'],
-                      );
-
-                      if (result != null) {
-                        Uint8List? fileBytes = result.files.single.bytes;
-
-                        if (fileBytes != null) {
-                          try {
-                            String csvContent = utf8.decode(fileBytes);
-
-                            List<String> lines = csvContent.split('\n');
-
-                            for (String line in lines) {
-                              List<String> csvRow = line.split(',');
-                              if (csvRow.length == 2) {
-                                String english = csvRow[0].trim();
-                                String vietnamese = csvRow[1].trim();
+                              if (_key.currentState?.validate() ?? false) {
+                                String english = _ctlEnglish.text.toString();
+                                String vietnamese =
+                                    _ctlVietnamese.text.toString();
+                                bool isLearned = false;
 
                                 WordModel wordModel = WordModel(
                                   english: english,
                                   vietnamese: vietnamese,
-                                  isLearned: false,
+                                  isLearned: isLearned,
                                   topicId: topicId,
                                 );
 
-                                if (context.mounted) {
-                                  wordRepository.addWord(context, wordModel);
+                                wordRepository.addWord(context, wordModel);
+
+                                navigator.pop();
+                              }
+                            },
+                            child: const Text('Add')),
+                        TextButton(
+                          onPressed: () async {
+                            final navigator = Navigator.of(context);
+
+                            FilePickerResult? result =
+                                await FilePicker.platform.pickFiles(
+                              type: FileType.custom,
+                              allowedExtensions: ['csv'],
+                            );
+
+                            if (result != null) {
+                              Uint8List? fileBytes = result.files.single.bytes;
+
+                              if (fileBytes != null) {
+                                try {
+                                  String csvContent = utf8.decode(fileBytes);
+
+                                  List<String> lines = csvContent.split('\n');
+
+                                  for (String line in lines) {
+                                    List<String> csvRow = line.split(',');
+                                    if (csvRow.length == 2) {
+                                      String english = csvRow[0].trim();
+                                      String vietnamese = csvRow[1].trim();
+
+                                      WordModel wordModel = WordModel(
+                                        english: english,
+                                        vietnamese: vietnamese,
+                                        isLearned: false,
+                                        topicId: topicId,
+                                      );
+
+                                      if (context.mounted) {
+                                        wordRepository.addWord(
+                                            context, wordModel);
+                                      }
+                                    }
+                                  }
+                                } catch (e) {
+                                  // print('Error reading file: $e');
                                 }
                               }
-                            }
-                          } catch (e) {
-                            // print('Error reading file: $e');
-                          }
-                        }
-                      } else {}
+                            } else {}
 
-                      navigator.pop();
+                            navigator.pop();
 
-                      // getFileByFilePicker(context, topicId);
-                    },
-                    child: const Text('Import from CSV'),
-                  ),
-                ],
-                content: AlertDialog(
-                  title: const Text('Add new word'),
-                  content: Form(
-                    key: _key,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: _ctlEnglish,
-                          decoration: const InputDecoration(
-                            labelText: 'English',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
+                            // getFileByFilePicker(context, topicId);
                           },
-                        ),
-                        TextFormField(
-                          controller: _ctlVietnamese,
-                          decoration: const InputDecoration(
-                            labelText: 'Vietnamese',
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
+                          child: const Text('Import from CSV'),
                         ),
                       ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+                      content: AlertDialog(
+                        title: const Text('Add new word'),
+                        content: Form(
+                          key: _key,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextFormField(
+                                controller: _ctlEnglish,
+                                decoration: const InputDecoration(
+                                  labelText: 'English',
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a value';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              TextFormField(
+                                controller: _ctlVietnamese,
+                                decoration: const InputDecoration(
+                                  labelText: 'Vietnamese',
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a value';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }

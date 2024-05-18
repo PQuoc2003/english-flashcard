@@ -82,14 +82,12 @@ class _TopicListPageState extends State<TopicListPage> {
     );
   }
 
-
   Future<void> _editTopic(TopicModel topicModel, String topicId) async {
     final user = FirebaseAuth.instance.currentUser;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-
         _cltTitleTopic.text = topicModel.topicName;
         _cltDescriptionTopic.text = topicModel.topicDescription;
 
@@ -146,7 +144,7 @@ class _TopicListPageState extends State<TopicListPage> {
 
                     String topicName = _cltTitleTopic.text.toString();
                     String topicDescription =
-                    _cltDescriptionTopic.text.toString();
+                        _cltDescriptionTopic.text.toString();
                     Timestamp createdDate = Timestamp.now();
                     String folderId = widget.folderId;
                     int currLearningIndex = 0;
@@ -160,12 +158,12 @@ class _TopicListPageState extends State<TopicListPage> {
                       uid: user?.uid ?? "1",
                       currLearningIndex: currLearningIndex,
                       numberOfWord: numberOfWord,
+                      isPublic: true,
                     );
 
                     topicRepository.updateTopic(topicId, updateTopic);
 
                     navigator.pop();
-
                   }
                 },
                 child: const Text('Update'),
@@ -251,6 +249,7 @@ class _TopicListPageState extends State<TopicListPage> {
                       uid: user?.uid ?? "1",
                       currLearningIndex: currLearningIndex,
                       numberOfWord: numberOfWord,
+                      isPublic: true,
                     );
 
                     await topicRepository.createTopic(context, topicModel);
