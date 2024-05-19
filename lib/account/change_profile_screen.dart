@@ -10,7 +10,7 @@ class ChangeProfileScreen extends StatefulWidget {
   const ChangeProfileScreen({super.key});
 
   @override
-  _ChangeProfileScreenState createState() => _ChangeProfileScreenState();
+  State<ChangeProfileScreen> createState() => _ChangeProfileScreenState();
 }
 
 class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
@@ -51,6 +51,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   // }
 
   Future<void> _pickImage() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
@@ -62,7 +63,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
         await _uploadImageToStorage();
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Failed to pick image: $error'),
         ),
@@ -71,9 +72,13 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   }
 
   Future<void> _uploadImageToStorage() async {
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     try {
       if (_avatar != null) {
         final User? user = FirebaseAuth.instance.currentUser;
+
         if (user != null) {
           Reference storageRef = FirebaseStorage.instance
               .ref()
@@ -84,7 +89,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
         }
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Failed to upload image: $error'),
         ),
@@ -198,6 +203,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   }
 
   Future<void> _changeProfile(BuildContext context) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       final User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -215,20 +221,20 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
           },
           SetOptions(merge: true),
         );
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           const SnackBar(
             content: Text('Profile updated successfully'),
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           const SnackBar(
             content: Text('No user signed in'),
           ),
         );
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Failed to update profile: $error'),
         ),
