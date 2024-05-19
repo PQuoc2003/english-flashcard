@@ -168,9 +168,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
           padding: const EdgeInsets.symmetric(vertical: 15.0),
         ),
-        child: const Text(
-          "Submit",
-          style: TextStyle(
+        child: Text(
+          isLogin == true ? "Login" : "Register",
+          style: const TextStyle(
             fontSize: 16,
           ),
         ),

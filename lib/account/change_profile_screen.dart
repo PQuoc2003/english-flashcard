@@ -25,30 +25,30 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // _fetchUserProfile();
+    _fetchUserProfile();
   }
-  //
-  // Future<void> _fetchUserProfile() async {
-  //   try {
-  //     final User? user = FirebaseAuth.instance.currentUser;
-  //     if (user != null) {
-  //       final userRef =
-  //       FirebaseFirestore.instance.collection('users').doc(user.uid);
-  //       final userData = await userRef.get();
-  //       setState(() {
-  //         _displayName = userData['displayName'];
-  //         _birthday = userData['birthday'];
-  //         _gender = userData['gender'];
-  //       });
-  //     }
-  //   } catch (error) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Failed to fetch user profile: $error'),
-  //       ),
-  //     );
-  //   }
-  // }
+
+  _fetchUserProfile() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userRef =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final userData = await userRef.get();
+        setState(() {
+          _displayName = userData['displayName'];
+          _birthday = userData['birthday'];
+          _gender = userData['gender'];
+        });
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to fetch user profile: $error'),
+        ),
+      );
+    }
+  }
 
   Future<void> _pickImage() async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
